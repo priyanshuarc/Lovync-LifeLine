@@ -25,8 +25,8 @@ const Auth = () => {
             />
           )}
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Email, username or phone number"
             className="w-full border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <input

@@ -1,8 +1,15 @@
-import React from "react";
-import Auth from "./components/Auth";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
-  return <Auth />;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        {/* Login & Register pages will come later */}
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;
