@@ -17,8 +17,8 @@ const ProfileCreationPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
-  const [contact, setContact] = useState(initialContact);
-  const [username, setUsername] = useState(initialUsername);
+  const [contact, Contact] = useState(initialContact);
+  const [username, Username] = useState(initialUsername);
   const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);

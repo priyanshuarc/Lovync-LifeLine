@@ -5,7 +5,8 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import VerificationPage from "./components/VerificationPage";
 import ProfileCreationPage from "./components/ProfileCreationPage";
-import Homepage from "./components/Homepage"; // New import
+import Homepage from "./pages/Homepage"; // New import
+import ProfilePage from "./pages/ProfilePage"; // Corrected import path
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/profile-creation" element={<ProfileCreationPage />} />
         <Route path="/homepage" element={<Homepage />} /> {/* New route */}
+        <Route path="/profile/:username" element={<ProfilePage />} />
       </Routes>
     </Router>
   );

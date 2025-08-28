@@ -1,9 +1,17 @@
 // src/components/Homepage.tsx
 import React, { useState } from "react";
-import Logo from "./Logo";
+import { Link } from "react-router-dom"; // Step 1: Import Link
+
+// A simple placeholder for your Logo component
+const Logo = () => (
+  <h1 className="text-2xl font-logo text-deep-purple">Lovync</h1>
+);
 
 const Homepage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('home');
+
+  // This is a placeholder. In a real app, you'd get the current user's username.
+  const currentUsername = "anshu_verma";
 
   const posts = [
     {
@@ -133,33 +141,6 @@ const Homepage: React.FC = () => {
           </div>
         );
 
-      case 'profile':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-purple-200 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-purple-700 font-bold text-xl">You</span>
-              </div>
-              <h3 className="text-xl font-medium text-gray-800">Your Profile</h3>
-              <p className="text-gray-500">@your_username</p>
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-600">Posts</span>
-                <span className="font-medium">12</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-600">Following</span>
-                <span className="font-medium">89</span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span className="text-gray-600">Followers</span>
-                <span className="font-medium">156</span>
-              </div>
-            </div>
-          </div>
-        );
-
       default:
         return null;
     }
@@ -171,7 +152,7 @@ const Homepage: React.FC = () => {
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-purple-700">Lovync</h1>
+          <Logo />
           </div>
           <div className="flex items-center gap-2">
             <button className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg">
@@ -221,17 +202,16 @@ const Homepage: React.FC = () => {
               <span className="text-xs mt-1">Messages</span>
             </button>
 
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`flex flex-col items-center py-2 px-4 rounded-lg transition-colors ${
-                activeTab === 'profile' ? 'text-purple-700 bg-purple-50' : 'text-gray-500'
-              }`}
+            {/* Step 2: Replace the button with a Link */}
+            <Link
+              to={`/profile/${currentUsername}`}
+              className="flex flex-col items-center py-2 px-4 rounded-lg transition-colors text-gray-500"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <span className="text-xs mt-1">Profile</span>
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
