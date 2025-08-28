@@ -1,35 +1,48 @@
+/* src/styles/Login.css */
+
+/* General page container with a background gradient */
 .login-container {
-  @apply flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-100 via-white to-orange-100 px-6 font-jejugothic;
+  /* Using your suggested colors for the background */
+  @apply flex items-center justify-center min-h-screen bg-[#B5C7EB] px-6 font-jejugothic;
 }
 
+/* Card for the login form */
 .login-card {
   @apply bg-white/70 backdrop-blur-2xl p-10 rounded-3xl shadow-xl w-full max-w-md animate-fadeIn text-center;
 }
 
+/* Logo with the custom font and gradient */
 .login-logo {
-  @apply text-4xl font-extrabold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent mb-6;
+  /* Using your specified gradient colors */
+  @apply text-4xl font-logo font-extrabold bg-gradient-to-r from-[#8E70CF] to-[#A4A5F5] bg-clip-text text-transparent mb-6;
 }
 
+/* Subtitle for the login form */
 .login-title {
   @apply text-xl font-semibold text-gray-800 mb-6;
 }
 
+/* Styling for the login form elements */
 .login-form {
   @apply flex flex-col gap-4 text-left;
 }
 
+/* Styling for input fields */
 .login-form input {
-  @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400;
+  @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#A4A5F5];
 }
 
+/* Styling for the main action button */
 .login-form button {
-  @apply w-full bg-gradient-to-r from-pink-500 to-orange-400 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:scale-105 transition duration-300;
+  @apply w-full bg-[#8E70CF] text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:bg-[#A4A5F5] transition duration-300;
 }
 
+/* Styling for the "OR" divider */
 .login-divider {
   @apply flex items-center justify-center text-gray-500 text-sm my-4;
 }
 
+/* Styling for the Google login button */
 .google-btn {
   @apply flex items-center justify-center gap-3 w-full border border-gray-300 rounded-xl py-3 hover:bg-gray-50 transition duration-200;
 }
@@ -38,10 +51,14 @@
   @apply w-5 h-5;
 }
 
+/* Styling for the toggle link to signup page */
 .login-toggle {
   @apply text-sm text-gray-600 mt-6;
 }
 
 .login-toggle span {
-  @apply text-pink-500 font-semibold cursor-pointer hover:underline;
+  @apply text-[#8E70CF] font-semibold cursor-pointer hover:underline;
 }
+
+/* To use this CSS file, you'll need to update your Login.tsx component
+   to import the CSS and use the class names defined above. */

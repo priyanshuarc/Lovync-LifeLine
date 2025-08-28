@@ -1,12 +1,13 @@
 // src/components/Login.tsx
 import React from "react";
 import { Link } from "react-router-dom";
+import Logo from "./Logo"; // Import the new Logo component
 
 const Login: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-blue-50 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center">
-        <h1 className="text-5xl font-bold text-purple-700 mb-6">Lovync</h1>
+        <Logo /> {/* Use the reusable Logo component here */}
         <h2 className="text-xl font-medium text-gray-700 mb-6">Log in to continue</h2>
 
         <form className="space-y-4">
