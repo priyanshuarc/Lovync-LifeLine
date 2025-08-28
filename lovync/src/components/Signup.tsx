@@ -1,30 +1,35 @@
-// src/components/Login.tsx
+// src/components/Signup.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Login: React.FC = () => {
+const Signup: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-blue-50 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center">
         <h1 className="text-5xl font-bold text-purple-700 mb-6">Lovync</h1>
-        <h2 className="text-xl font-medium text-gray-700 mb-6">Log in to continue</h2>
+        <h2 className="text-xl font-medium text-gray-700 mb-6">Create your account</h2>
 
         <form className="space-y-4">
           <input 
             className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-400" 
             type="text" 
-            placeholder="Email, Username or Phone" 
+            placeholder="Full Name" 
+          />
+          <input 
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-400" 
+            type="email" 
+            placeholder="Email Address" 
           />
           <input 
             className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-400" 
             type="password" 
-            placeholder="Password" 
+            placeholder="Create Password" 
           />
           <button 
             className="w-full bg-purple-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-800 transition-colors" 
             type="submit"
           >
-            Log In
+            Sign Up
           </button>
         </form>
 
@@ -40,16 +45,16 @@ const Login: React.FC = () => {
             alt="Google"
             className="w-5 h-5"
           />
-          Continue with Google
+          Sign up with Google
         </button>
 
         <p className="text-sm text-gray-600 mt-6">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <Link 
-            to="/signup" 
+            to="/login" 
             className="text-purple-700 font-medium hover:underline"
           >
-            Sign up
+            Log in
           </Link>
         </p>
       </div>
@@ -57,4 +62,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Signup;
