@@ -1,62 +1,101 @@
-/* TikTok-inspired Profile Page Styles */
-
-/* Clean, minimal design with white theme */
+/* Profile Page Styles - Clean and Modern */
 
 /* Smooth transitions */
 * {
   transition: all 0.2s ease;
 }
 
-/* Profile photo hover effect */
-.profile-photo-container:hover .profile-photo {
-  transform: scale(1.05);
+/* Profile photo styling */
+.profile-photo-container {
+  position: relative;
+  display: inline-block;
 }
 
 .profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-/* Edit button hover effect */
-.edit-profile-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+/* Edit button styling */
+.edit-profile-btn {
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Tab hover effects */
+.edit-profile-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Tab button styling */
+.tab-button {
+  position: relative;
+  cursor: pointer;
+}
+
 .tab-button:hover {
   background-color: #f8f9fa;
 }
 
 .tab-button.active {
-  border-bottom-color: #000;
-  color: #000;
+  border-bottom-color: #8b5cf6;
+  color: #8b5cf6;
 }
 
-/* Post grid hover effects */
+/* Post grid styling */
 .post-item {
-  transition: opacity 0.2s ease;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .post-item:hover {
-  opacity: 0.8;
+  transform: scale(1.02);
 }
 
 /* Avatar change button */
 .avatar-change-btn {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 32px;
+  height: 32px;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .avatar-change-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
-/* Stats hover effect */
+/* Stats styling */
+.stats-item {
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
 .stats-item:hover {
   transform: translateY(-2px);
 }
 
-/* Custom scrollbar for webkit browsers */
+/* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -106,39 +145,60 @@
 
 /* Focus states for accessibility */
 button:focus,
-input:focus {
-  outline: 2px solid #3b82f6;
+input:focus,
+textarea:focus {
+  outline: 2px solid #8b5cf6;
   outline-offset: 2px;
 }
 
-/* Dark mode support (if user prefers) */
-@media (prefers-color-scheme: dark) {
-  .dark-mode {
-    background-color: #111827;
-    color: #f9fafb;
-  }
-  
-  .dark-mode .border-gray-200 {
-    border-color: #374151;
-  }
-  
-  .dark-mode .text-gray-900 {
-    color: #f9fafb;
-  }
-  
-  .dark-mode .text-gray-600 {
-    color: #d1d5db;
-  }
-  
-  .dark-mode .text-gray-700 {
-    color: #e5e7eb;
-  }
-  
-  .dark-mode .bg-gray-100 {
-    background-color: #374151;
-  }
-  
-  .dark-mode .hover\:bg-gray-100:hover {
-    background-color: #4b5563;
-  }
+/* Input styling for edit mode */
+.edit-input {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.edit-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Button group styling */
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.save-button {
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-button:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.cancel-button {
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-button:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
 }

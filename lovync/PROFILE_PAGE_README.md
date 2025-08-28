@@ -98,3 +98,4 @@ The profile page can be customized by:
 - The design follows TikTok's aesthetic while maintaining uniqueness
 - All animations are CSS-based for optimal performance
 - The component is fully responsive and accessible
+
