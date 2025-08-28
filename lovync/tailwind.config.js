@@ -11,6 +11,10 @@ module.exports = {
       animation: {
         fadeIn: "fadeIn 0.8s ease-out forwards",
       },
+       fontFamily: {
+        jejugothic: ["Jeju Gothic", "sans-serif"],
+        logo: ["GoboCapsItalic", "sans-serif"], // 👈 added font here 
+       },
     },
   },
   plugins: [],

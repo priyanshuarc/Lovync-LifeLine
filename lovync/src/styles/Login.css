@@ -1,0 +1,47 @@
+.login-container {
+  @apply flex items-center justify-center min-h-screen bg-gradient-to-br from-pink-100 via-white to-orange-100 px-6 font-jejugothic;
+}
+
+.login-card {
+  @apply bg-white/70 backdrop-blur-2xl p-10 rounded-3xl shadow-xl w-full max-w-md animate-fadeIn text-center;
+}
+
+.login-logo {
+  @apply text-4xl font-extrabold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent mb-6;
+}
+
+.login-title {
+  @apply text-xl font-semibold text-gray-800 mb-6;
+}
+
+.login-form {
+  @apply flex flex-col gap-4 text-left;
+}
+
+.login-form input {
+  @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400;
+}
+
+.login-form button {
+  @apply w-full bg-gradient-to-r from-pink-500 to-orange-400 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:scale-105 transition duration-300;
+}
+
+.login-divider {
+  @apply flex items-center justify-center text-gray-500 text-sm my-4;
+}
+
+.google-btn {
+  @apply flex items-center justify-center gap-3 w-full border border-gray-300 rounded-xl py-3 hover:bg-gray-50 transition duration-200;
+}
+
+.google-icon {
+  @apply w-5 h-5;
+}
+
+.login-toggle {
+  @apply text-sm text-gray-600 mt-6;
+}
+
+.login-toggle span {
+  @apply text-pink-500 font-semibold cursor-pointer hover:underline;
+}
