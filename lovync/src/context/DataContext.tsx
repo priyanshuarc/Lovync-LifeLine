@@ -74,15 +74,15 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 const sampleUsers: User[] = [
   {
     id: 1,
-    name: "Anshu Verma",
-    username: "anshu_verma",
-    avatar: "https://i.pravatar.cc/150?u=anshu_verma",
+    name: "Priyanshu Pandey",
+    username: "priyanshu_pandey",
+    avatar: "/logo.svg",
     verified: true,
     online: true,
-    bio: "Digital Creator & Tech Enthusiast ✨ | Building Lovync to connect souls. Passionate about innovation and meaningful connections.",
-    followers: 4032,
-    following: 589,
-    posts: 125
+    bio: "CEO of Lovync & Founder 🚀 | Building the future of social connection. Leading innovation and meaningful relationships.",
+    followers: 15000,
+    following: 250,
+    posts: 500
   },
   {
     id: 2,
@@ -174,7 +174,7 @@ const samplePosts: Post[] = [
   {
     id: 1,
     userId: 1,
-    content: "Just finished building this amazing social platform! The future of connection is here ✨ #Lovync #Innovation #SocialMedia",
+    content: "As CEO & Founder of Lovync, I'm proud to announce our revolutionary social platform! The future of meaningful connections is here 🚀 #Lovync #CEO #Innovation #SocialMedia",
     image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop",
     likes: 1247,
     comments: 89,

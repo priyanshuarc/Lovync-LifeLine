@@ -22,7 +22,8 @@ import {
   BsStop
 } from 'react-icons/bs';
 import { FiEdit3, FiSearch } from 'react-icons/fi';
-import { MdVerified, MdDelete, MdReport, MdBlock, MdPersonAdd, MdDescription } from 'react-icons/md';
+import { MdDelete, MdReport, MdBlock, MdPersonAdd, MdDescription } from 'react-icons/md';
+import GoldenVerifiedBadge from '../components/GoldenVerifiedBadge';
 import ProfileInfo from './ProfileInfo';
 
 interface Conversation {
@@ -65,6 +66,7 @@ const MessagesPage: React.FC = () => {
   const [showChatInfo, setShowChatInfo] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
 
   const [showReplyTo, setShowReplyTo] = useState<Message | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -203,7 +205,7 @@ const MessagesPage: React.FC = () => {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px';
     }
   }, [messageText]);
 
@@ -502,7 +504,7 @@ const MessagesPage: React.FC = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-gray-900 truncate text-base">{selectedConversation.user}</h3>
-                {selectedConversation.verified && <MdVerified className="text-purple-500 flex-shrink-0" size={16} />}
+                {selectedConversation.verified && <GoldenVerifiedBadge size={16} />}
               </div>
               <p className="text-gray-500 truncate text-sm">
                 {selectedConversation.online ? 'online' : 'last seen recently'}
@@ -816,24 +818,27 @@ const MessagesPage: React.FC = () => {
                   value={messageText}
                   onChange={(e) => {
                     const value = e.target.value;
-                    // Limit to 500 characters
-                    if (value.length <= 500) {
+                    // Limit to 1000 characters
+                    if (value.length <= 1000) {
                       setMessageText(value);
                       // Auto-resize the textarea with larger height limit
                       const textarea = e.target;
                       textarea.style.height = 'auto';
-                      textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+                      textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+                    } else {
+                      // Show limit reached dialog
+                      setShowLimitDialog(true);
                     }
                   }}
                   onInput={(e) => {
                     // Additional resize on input for better mobile support
                     const textarea = e.target as HTMLTextAreaElement;
                     textarea.style.height = 'auto';
-                    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+                    textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
                   }}
                   onKeyPress={handleKeyPress}
                   placeholder="Type a message..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 resize-none min-h-[44px] max-h-[120px] text-sm"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 resize-none min-h-[44px] max-h-[200px] text-sm"
                   rows={1}
                   style={{ 
                     minHeight: '44px',
@@ -849,10 +854,7 @@ const MessagesPage: React.FC = () => {
                 />
               )}
               
-              {/* Character counter */}
-              <div className="text-xs text-gray-500 mt-1 text-right w-full">
-                {messageText.length}/500
-              </div>
+
             </div>
             
             <div className="flex gap-2 flex-shrink-0 ml-2">
@@ -904,6 +906,29 @@ const MessagesPage: React.FC = () => {
           )}
         </div>
 
+        {/* Character Limit Reached Dialog */}
+        {showLimitDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]">
+            <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Character Limit Reached</h3>
+                <p className="text-gray-600 mb-6">You have reached the maximum limit of 1000 characters for this message.</p>
+                <button
+                  onClick={() => setShowLimitDialog(false)}
+                  className="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors"
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Chat Info Sidebar */}
         {showChatInfo && (
           <div className="fixed inset-y-0 right-0 w-full bg-white shadow-lg z-[60]">
@@ -926,7 +951,7 @@ const MessagesPage: React.FC = () => {
                 />
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center justify-center gap-2">
                   {selectedConversation.user}
-                  {selectedConversation.verified && <MdVerified className="text-blue-500" size={16} />}
+                  {selectedConversation.verified && <GoldenVerifiedBadge size={16} />}
                 </h3>
                 <p className="text-sm text-gray-600">@{selectedConversation.username}</p>
                 <div className="flex items-center justify-center gap-3 mt-2 text-xs text-gray-500">
@@ -1099,7 +1124,7 @@ const MessagesPage: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <h3 className="font-semibold text-gray-900 truncate">{conversation.user}</h3>
-                      {conversation.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={16} />}
+                      {conversation.verified && <GoldenVerifiedBadge size={16} />}
                       {conversation.nickname && (
                         <span className="text-sm text-gray-500">({conversation.nickname})</span>
                       )}

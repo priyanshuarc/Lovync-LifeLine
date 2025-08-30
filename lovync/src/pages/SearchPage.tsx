@@ -95,7 +95,7 @@ const SearchPage: React.FC = () => {
                   >
                     {user.name}
                   </h3>
-                  {user.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={16} />}
+                  {user.verified && <MdVerified className="text-purple-400 flex-shrink-0" size={16} />}
                 </div>
                 <p className="text-gray-600 text-sm mb-1">@{user.username}</p>
                 {user.bio && (
@@ -183,7 +183,7 @@ const SearchPage: React.FC = () => {
                     >
                       {user.name}
                     </span>
-                    {user.verified && <MdVerified className="text-blue-500" size={14} />}
+                    {user.verified && <MdVerified className="text-purple-400" size={14} />}
                   </div>
                   <p className="text-sm text-gray-500">@{user.username} • {post.timestamp}</p>
                 </div>

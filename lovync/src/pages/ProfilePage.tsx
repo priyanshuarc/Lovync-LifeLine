@@ -15,7 +15,8 @@ import {
   BsCalendar3
 } from 'react-icons/bs';
 import { FiEdit3, FiSettings } from 'react-icons/fi';
-import { MdVerified, MdAddAPhoto } from 'react-icons/md';
+import { MdAddAPhoto } from 'react-icons/md';
+import GoldenVerifiedBadge from '../components/GoldenVerifiedBadge';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -114,9 +115,9 @@ const ProfilePage: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 sm:gap-3 mb-2">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{profileUser.name}</h1>
-                    {profileUser.verified && (
-                      <MdVerified className="text-blue-500" size={20} />
-                    )}
+                {profileUser.verified && (
+                  <GoldenVerifiedBadge size={20} />
+                )}
                   </div>
                   
                   <p className="text-base sm:text-lg text-gray-600 mb-2 sm:mb-3">@{profileUser.username}</p>

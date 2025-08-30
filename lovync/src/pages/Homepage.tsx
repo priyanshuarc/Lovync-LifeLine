@@ -13,6 +13,7 @@ import {
   BsEye
 } from 'react-icons/bs';
 import { MdVerified, MdTrendingUp } from 'react-icons/md';
+import GoldenVerifiedBadge from '../components/GoldenVerifiedBadge';
 import { FiTrendingUp, FiUsers, FiCompass } from 'react-icons/fi';
 
 // Clean, well-structured interfaces
@@ -77,14 +78,14 @@ const Homepage: React.FC = () => {
       type: 'post',
       user: {
         id: '1',
-        name: 'Anshu Verma',
-        username: 'anshu_verma',
-        avatar: 'https://i.pravatar.cc/150?u=anshu_verma',
+        name: 'Priyanshu Pandey',
+        username: 'priyanshu_pandey',
+        avatar: '/logo.svg',
         verified: true,
-        followers: 4032
+        followers: 15000
       },
       timestamp: '2 hours ago',
-      text: 'Just launched our new feature! 🚀 The response has been incredible. What do you think about the new interface?',
+      text: 'As CEO & Founder of Lovync, I\'m proud to announce our revolutionary social platform! The future of meaningful connections is here 🚀 #Lovync #CEO #Innovation',
       media: {
         type: 'image',
         url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
@@ -298,7 +299,11 @@ const Homepage: React.FC = () => {
                 >
                   {content.user.name}
                 </h3>
-                {content.user.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={16} />}
+                {content.user.verified && content.user.id === '1' ? (
+                  <GoldenVerifiedBadge size={16} />
+                ) : content.user.verified ? (
+                  <MdVerified className="text-purple-400 flex-shrink-0" size={16} />
+                ) : null}
               </div>
               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
                 <span>@{content.user.username}</span>

@@ -98,7 +98,7 @@ const ExplorePage: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2">
                     <h4 className="font-semibold text-gray-900 truncate">{user.name}</h4>
-                    {user.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={14} />}
+                    {user.verified && <MdVerified className="text-purple-400 flex-shrink-0" size={14} />}
                   </div>
                   <p className="text-sm text-gray-600">@{user.username}</p>
                 </div>
@@ -152,7 +152,7 @@ const ExplorePage: React.FC = () => {
                         className="w-6 h-6 rounded-full object-cover"
                       />
                       <span className="text-sm font-medium text-gray-900">{user.name}</span>
-                      {user.verified && <MdVerified className="text-blue-500" size={12} />}
+                      {user.verified && <MdVerified className="text-purple-400" size={12} />}
                     </div>
                     <p className="text-sm text-gray-700 line-clamp-2 mb-3">{post.content}</p>
                     <div className="flex items-center justify-between text-xs text-gray-500">
@@ -203,7 +203,7 @@ const ExplorePage: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="font-semibold text-gray-900">{user.name}</span>
-                      {user.verified && <MdVerified className="text-blue-500" size={14} />}
+                      {user.verified && <MdVerified className="text-purple-400" size={14} />}
                       <span className="text-xs text-gray-500">@{user.username}</span>
                     </div>
                     <p className="text-gray-700 mb-2">{post.content}</p>
@@ -261,7 +261,7 @@ const ExplorePage: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <h4 className="font-semibold text-gray-900">{user.name}</h4>
-                  {user.verified && <MdVerified className="text-blue-500" size={16} />}
+                  {user.verified && <MdVerified className="text-purple-400" size={16} />}
                 </div>
                 <p className="text-sm text-gray-600 mb-3">@{user.username}</p>
                 {user.bio && (
