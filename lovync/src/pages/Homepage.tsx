@@ -1,334 +1,372 @@
-// src/components/Homepage.tsx
+// src/pages/Homepage.tsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { 
   BsHeart, 
   BsChatDots,
-  BsPlayCircle,
-  BsCamera,
-  BsEmojiSmile,
-  BsGeoAlt,
-  BsThreeDots,
   BsShare,
   BsBookmark,
-  BsMusicNote
+  BsThreeDots,
+  BsSearch,
+  BsBell,
+  BsEye,
+  BsPlay
 } from 'react-icons/bs';
-import { FiHome, FiMessageCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiUser } from 'react-icons/fi';
 import { MdVerified } from 'react-icons/md';
 
-const Homepage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('home');
-  const [newPostContent, setNewPostContent] = useState('');
-  const [isLiked, setIsLiked] = useState<{[key: number]: boolean}>({});
-  const [isBookmarked, setIsBookmarked] = useState<{[key: number]: boolean}>({});
+// Clean, well-structured interfaces
+interface User {
+  id: string;
+  name: string;
+  username: string;
+  avatar: string;
+  verified: boolean;
+  followers: number;
+}
 
-  // Enhanced posts data with more realistic content
-  const posts = [
+interface Content {
+  id: string;
+  type: 'post' | 'story' | 'highlight';
+  user: User;
+  timestamp: string;
+  text?: string;
+  media?: {
+    type: 'image' | 'video';
+    url: string;
+    thumbnail?: string;
+    duration?: string;
+  };
+  stats: {
+    views: number;
+    likes: number;
+    comments: number;
+    shares: number;
+  };
+  tags?: string[];
+  location?: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  count: number;
+}
+
+const Homepage: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Set<string>>(new Set());
+
+  // Sample data
+  const categories: Category[] = [
+    { id: 'all', name: 'All', icon: '🌟', color: 'from-purple-500 to-pink-500', count: 0 },
+    { id: 'tech', name: 'Technology', icon: '💻', color: 'from-blue-500 to-cyan-500', count: 1247 },
+    { id: 'lifestyle', name: 'Lifestyle', icon: '✨', color: 'from-pink-500 to-rose-500', count: 892 },
+    { id: 'creative', name: 'Creative', icon: '🎨', color: 'from-orange-500 to-yellow-500', count: 2156 },
+    { id: 'business', name: 'Business', icon: '💼', color: 'from-green-500 to-emerald-500', count: 567 },
+    { id: 'health', name: 'Health', icon: '🏃‍♀️', color: 'from-red-500 to-pink-500', count: 1342 }
+  ];
+
+  const featuredContent: Content[] = [
     {
-      id: 1,
-      user: "Sarah Johnson",
-      username: "@sarah_j",
-      verified: true,
-      time: "2h ago",
-      content: "Just had the most amazing coffee at this new place downtown! ☕️ The vibe is perfect for studying or catching up with friends. Highly recommend! #CoffeeLover #DowntownVibes",
-      likes: 1247,
-      comments: 89,
-      shares: 23,
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-      image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&h=400&fit=crop",
-      music: "Coffee Shop Vibes - LoFi Beats",
-      location: "Downtown Coffee Co."
+      id: '1',
+      type: 'post',
+      user: {
+        id: 'u1',
+        name: 'Alex Chen',
+        username: '@alexchen',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        verified: true,
+        followers: 15420
+      },
+      timestamp: '2 hours ago',
+      text: 'Just launched our new AI-powered design tool! 🚀 The future of creative work is here. What do you think about AI in design?',
+      media: {
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop'
+      },
+      stats: { views: 1247, likes: 89, comments: 23, shares: 12 },
+      tags: ['AI', 'Design', 'Innovation', 'Tech'],
+      location: 'San Francisco, CA'
     },
     {
-      id: 2,
-      user: "Mike Chen",
-      username: "@mike_c",
-      verified: false,
-      time: "4h ago",
-      content: "Weekend hiking adventure complete! 🥾⛰️ Nothing beats the feeling of reaching the summit. The view was absolutely breathtaking! Who wants to join me next weekend? #Hiking #Adventure #WeekendVibes",
-      likes: 892,
-      comments: 156,
-      shares: 45,
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&h=400&fit=crop",
-      music: "Mountain Wind - Nature Sounds",
-      location: "Mount Wilson Trail"
+      id: '2',
+      type: 'post',
+      user: {
+        id: 'u2',
+        name: 'Sarah Kim',
+        username: '@sarahkim',
+        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+        verified: false,
+        followers: 8920
+      },
+      timestamp: '4 hours ago',
+      text: 'Morning routine that changed my life: 1. Cold shower 2. Meditation 3. Journaling 4. Exercise. Consistency is key! 💪',
+      media: {
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop'
+      },
+      stats: { views: 892, likes: 156, comments: 45, shares: 23 },
+      tags: ['MorningRoutine', 'Wellness', 'SelfCare', 'Motivation'],
+      location: 'New York, NY'
     },
     {
-      id: 3,
-      user: "Emma Davis",
-      username: "@emma_d",
-      verified: true,
-      time: "6h ago",
-      content: "Trying out a new recipe today! Homemade pasta from scratch 🍝 Wish me luck! Will share the results if it turns out edible 😅 #Cooking #Homemade #Pasta #Foodie",
-      likes: 2156,
-      comments: 234,
-      shares: 67,
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=600&h=400&fit=crop",
-      music: "Italian Kitchen - Cooking Sounds",
-      location: "Home Kitchen"
-    },
-    {
-      id: 4,
-      user: "Alex Rivera",
-      username: "@alex_r",
-      verified: false,
-      time: "8h ago",
-      content: "Late night coding session! 💻 Building something amazing for Lovync. The creative process is so rewarding when you see your ideas come to life. #Coding #Tech #Innovation #Lovync",
-      likes: 567,
-      comments: 78,
-      shares: 12,
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop",
-      music: "Code Flow - Electronic",
-      location: "Home Office"
+      id: '3',
+      type: 'post',
+      user: {
+        id: 'u3',
+        name: 'Mike Rodriguez',
+        username: '@mikerod',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        verified: true,
+        followers: 23450
+      },
+      timestamp: '6 hours ago',
+      text: 'Building something amazing with the team today! Collaboration + creativity = magic ✨ What are you working on?',
+      stats: { views: 2156, likes: 234, comments: 67, shares: 34 },
+      tags: ['Teamwork', 'Creativity', 'Innovation', 'Collaboration']
     }
   ];
 
-  const handleLike = (postId: number) => {
-    setIsLiked(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }));
+  // Event handlers
+  const handleLike = (postId: string) => {
+    setLikedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
   };
 
-  const handleBookmark = (postId: number) => {
-    setIsBookmarked(prev => ({
-      ...prev,
-      [postId]: !prev[postId]
-    }));
+  const handleBookmark = (postId: string) => {
+    setBookmarkedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
   };
 
-  const handleCreatePost = () => {
-    if (newPostContent.trim()) {
-      console.log('Creating post:', newPostContent);
-      setNewPostContent('');
-    }
-  };
+  // Render functions
+  const renderHeader = () => (
+    <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Lovync
+            </h1>
+          </div>
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'home':
-        return (
-          <div className="space-y-4 sm:space-y-6">
-            {/* Create Post Section */}
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
-              <div className="flex items-start space-x-3">
-                <img 
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" 
-                  alt="Your avatar" 
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <textarea
-                    value={newPostContent}
-                    onChange={(e) => setNewPostContent(e.target.value)}
-                    placeholder="What's on your mind?"
-                    className="w-full p-3 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
-                    rows={3}
-                  />
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center space-x-2">
-                      <button className="p-2 text-gray-400 hover:text-purple-500 hover:bg-purple-50 rounded-lg transition-colors">
-                        <BsCamera size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-purple-500 hover:bg-purple-50 rounded-lg transition-colors">
-                        <BsEmojiSmile size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-purple-500 hover:bg-purple-50 rounded-lg transition-colors">
-                        <BsGeoAlt size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      </button>
-                    </div>
-                    <button
-                      onClick={handleCreatePost}
-                      disabled={!newPostContent.trim()}
-                      className="px-4 sm:px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                    >
-                      Post
-                    </button>
-                  </div>
-                </div>
-              </div>
+          {/* Search */}
+          <div className="flex-1 max-w-2xl mx-8">
+            <div className="relative">
+              <BsSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search for people, topics, or content..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
             </div>
+          </div>
 
-            {/* Posts Feed */}
-            {posts.map((post) => (
-              <div key={post.id} className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                {/* Post Header */}
-                <div className="p-3 sm:p-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <img 
-                      src={post.avatar} 
-                      alt={`${post.user}'s avatar`} 
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-gray-900 text-sm sm:text-base truncate">{post.user}</span>
-                        {post.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={16} />}
-                      </div>
-                      <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500">
-                        <span className="truncate">{post.username}</span>
-                        <span>•</span>
-                        <span className="truncate">{post.time}</span>
-                        {post.location && (
-                          <>
-                            <span>•</span>
-                            <div className="flex items-center space-x-1 truncate">
-                              <BsGeoAlt size={10} className="sm:w-3 sm:h-3 flex-shrink-0" />
-                              <span className="truncate">{post.location}</span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
-                    <BsThreeDots size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  </button>
-                </div>
+          {/* Actions */}
+          <div className="flex items-center space-x-4">
+            <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
+              <BsBell size={20} />
+            </button>
+            <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
+              <FiUser size={20} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
 
-                {/* Post Content */}
-                <div className="px-3 sm:px-4 pb-3 sm:pb-4">
-                  <p className="text-gray-800 leading-relaxed mb-3 sm:mb-4 text-sm sm:text-base">{post.content}</p>
-                  
-                  {/* Post Image */}
-                  {post.image && (
-                    <div className="relative rounded-lg sm:rounded-xl overflow-hidden mb-3 sm:mb-4">
-                      <img 
-                        src={post.image} 
-                        alt="Post content" 
-                        className="w-full h-48 sm:h-64 object-cover"
-                      />
-                      {post.music && (
-                        <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 right-2 sm:right-3 bg-black/70 backdrop-blur-sm rounded-lg p-2 sm:p-3">
-                          <div className="flex items-center gap-2 sm:gap-3 text-white">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                              <BsMusicNote size={12} className="sm:w-4 sm:h-4" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs sm:text-sm font-medium truncate">{post.music}</p>
-                              <p className="text-xs text-gray-300">Original Sound</p>
-                            </div>
-                            <button className="p-1.5 sm:p-2 hover:bg-white/20 rounded-full transition-colors flex-shrink-0">
-                              <BsPlayCircle size={16} className="sm:w-5 sm:h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+  const renderCategories = () => (
+    <div className="bg-white border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex space-x-4 py-4 overflow-x-auto">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                selectedCategory === category.id
+                  ? `bg-gradient-to-r ${category.color} text-white shadow-lg`
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-lg">{category.icon}</span>
+              <span>{category.name}</span>
+              {category.count > 0 && (
+                <span className="ml-2 px-2 py-1 bg-white/20 rounded-full text-xs">
+                  {category.count.toLocaleString()}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
-                {/* Post Actions */}
-                <div className="px-3 sm:px-4 py-2 sm:py-3 border-t border-gray-100 flex items-center justify-between">
-                  <div className="flex gap-4 sm:gap-6">
-                    <button 
-                      onClick={() => handleLike(post.id)}
-                      className={`flex items-center gap-1.5 sm:gap-2 transition-colors ${
-                        isLiked[post.id] ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-                      }`}
-                    >
-                      <BsHeart size={18} className={`sm:w-5 sm:h-5 ${isLiked[post.id] ? 'fill-current' : ''}`} />
-                      <span className="text-xs sm:text-sm font-medium">{post.likes.toLocaleString()}</span>
-                    </button>
-                    <button className="flex items-center gap-1.5 sm:gap-2 text-gray-500 hover:text-blue-500 transition-colors">
-                      <BsChatDots size={18} className="sm:w-5 sm:h-5" />
-                      <span className="text-xs sm:text-sm font-medium">{post.comments.toLocaleString()}</span>
-                    </button>
-                    <button className="flex items-center gap-1.5 sm:gap-2 text-gray-500 hover:text-green-500 transition-colors">
-                      <BsShare size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      <span className="text-xs sm:text-sm font-medium">{post.shares.toLocaleString()}</span>
-                    </button>
-                  </div>
-                  <button 
-                    onClick={() => handleBookmark(post.id)}
-                    className={`p-2 rounded-lg transition-colors ${
-                      isBookmarked[post.id] 
-                        ? 'text-purple-500 bg-purple-50' 
-                        : 'text-gray-500 hover:text-purple-500 hover:bg-purple-50'
-                    }`}
-                  >
-                    <BsBookmark size={16} className={`sm:w-[18px] sm:h-[18px] ${isBookmarked[post.id] ? 'fill-current' : ''}`} />
-                  </button>
-                </div>
+  const renderContentCard = (content: Content) => (
+    <div key={content.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200">
+      {/* Header */}
+      <div className="p-6 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <img
+            src={content.user.avatar}
+            alt={content.user.name}
+            className="w-12 h-12 rounded-full object-cover"
+          />
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-gray-900">{content.user.name}</span>
+              {content.user.verified && <MdVerified className="text-blue-500" size={18} />}
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <span>{content.user.username}</span>
+              <span>•</span>
+              <span>{content.timestamp}</span>
+              {content.location && (
+                <>
+                  <span>•</span>
+                  <span>{content.location}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+        <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+          <BsThreeDots size={18} />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="px-6 pb-4">
+        {content.text && (
+          <p className="text-gray-800 text-base leading-relaxed mb-4">{content.text}</p>
+        )}
+
+        {content.media && (
+          <div className="relative rounded-xl overflow-hidden mb-4">
+            <img
+              src={content.media.type === 'video' ? content.media.thumbnail || content.media.url : content.media.url}
+              alt="Content media"
+              className="w-full h-80 object-cover"
+            />
+            {content.media.type === 'video' && (
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                <button className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors">
+                  <BsPlay size={24} className="text-gray-800 ml-1" />
+                </button>
               </div>
+            )}
+            {content.media.duration && (
+              <div className="absolute bottom-3 right-3 bg-black/80 text-white px-2 py-1 rounded-lg text-sm">
+                {content.media.duration}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tags */}
+        {content.tags && content.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {content.tags.map((tag, index) => (
+              <span key={index} className="px-3 py-1 bg-purple-50 text-purple-700 text-sm rounded-full font-medium">
+                {tag}
+              </span>
             ))}
           </div>
-        );
+        )}
+      </div>
 
-      case 'trending':
-        return (
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 text-center">
-            <FiTrendingUp className="w-12 h-12 sm:w-16 sm:h-16 text-purple-500 mx-auto mb-3 sm:mb-4" />
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Trending Now</h3>
-            <p className="text-gray-500 mb-4 sm:mb-6 text-sm sm:text-base">Discover what's hot and trending in your area</p>
-            <div className="space-y-2 sm:space-y-3">
-              {['#CoffeeVibes', '#WeekendAdventure', '#HomemadePasta', '#CodingLife'].map((trend, index) => (
-                <div key={index} className="p-2 sm:p-3 bg-gray-50 rounded-lg text-left">
-                  <p className="font-medium text-gray-900 text-sm sm:text-base">{trend}</p>
-                  <p className="text-xs sm:text-sm text-gray-500">{Math.floor(Math.random() * 1000) + 100} posts</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 'messages':
-        return (
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 text-center">
-            <FiMessageCircle className="w-12 h-12 sm:w-16 sm:h-16 text-purple-500 mx-auto mb-3 sm:mb-4" />
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Messages</h3>
-            <p className="text-gray-500 mb-4 sm:mb-6 text-sm sm:text-base">Your conversations will appear here</p>
-            <Link 
-              to="/messages"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 text-sm sm:text-base"
-            >
-              View All Messages
-            </Link>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-        {/* Content Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-3 sm:mb-4">
-          <div className="flex overflow-x-auto">
-            {[
-              { id: 'home', label: 'Home', icon: FiHome },
-              { id: 'trending', label: 'Trending', icon: FiTrendingUp },
-              { id: 'messages', label: 'Messages', icon: FiMessageCircle }
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 text-sm font-medium transition-colors flex-shrink-0 ${
-                    activeTab === tab.id
-                      ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon size={16} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+      {/* Stats and Actions */}
+      <div className="px-6 py-4 border-t border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-6 text-sm text-gray-500">
+            <span className="flex items-center space-x-1">
+              <BsEye size={16} />
+              <span>{content.stats.views.toLocaleString()}</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <BsHeart size={16} />
+              <span>{content.stats.likes.toLocaleString()}</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <BsChatDots size={16} />
+              <span>{content.stats.comments.toLocaleString()}</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <BsShare size={16} />
+              <span>{content.stats.shares.toLocaleString()}</span>
+            </span>
           </div>
         </div>
 
-        {/* Tab Content */}
-        {renderTabContent()}
+        <div className="flex items-center justify-between">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => handleLike(content.id)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                likedPosts.has(content.id)
+                  ? 'text-red-500 bg-red-50'
+                  : 'text-gray-500 hover:text-red-500 hover:bg-red-50'
+              }`}
+            >
+              <BsHeart size={16} className={likedPosts.has(content.id) ? 'fill-current' : ''} />
+              <span>Like</span>
+            </button>
+            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-blue-500 hover:bg-blue-50 transition-colors">
+              <BsChatDots size={16} />
+              <span>Comment</span>
+            </button>
+            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-green-500 hover:bg-green-50 transition-colors">
+              <BsShare size={16} />
+              <span>Share</span>
+            </button>
+          </div>
+          <button
+            onClick={() => handleBookmark(content.id)}
+            className={`p-2 rounded-lg transition-colors ${
+              bookmarkedPosts.has(content.id)
+                ? 'text-purple-500 bg-purple-50'
+                : 'text-gray-500 hover:text-purple-500 hover:bg-purple-50'
+            }`}
+          >
+            <BsBookmark size={16} className={bookmarkedPosts.has(content.id) ? 'fill-current' : ''} />
+          </button>
+        </div>
       </div>
+    </div>
+  );
+
+  const renderMainContent = () => (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-8">
+        {featuredContent.map(renderContentCard)}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {renderHeader()}
+      {renderCategories()}
+      {renderMainContent()}
     </div>
   );
 };

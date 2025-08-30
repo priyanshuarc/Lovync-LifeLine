@@ -5,17 +5,75 @@
   transition: all 0.2s ease;
 }
 
-/* Profile photo styling */
+/* Profile photo styling - Fixed sizing for consistency */
 .profile-photo-container {
   position: relative;
   display: inline-block;
 }
 
 .profile-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 96px !important; /* Fixed width: 24 * 4 = 96px (w-24) */
+  height: 96px !important; /* Fixed height: 24 * 4 = 96px (h-24) */
+  object-fit: cover !important;
+  object-position: center !important;
   transition: transform 0.3s ease;
+  flex-shrink: 0 !important; /* Prevent shrinking */
+  max-width: 96px !important;
+  max-height: 96px !important;
+  min-width: 96px !important;
+  min-height: 96px !important;
+}
+
+/* Ensure consistent sizing for all profile photos - More specific selectors */
+.profile-photo,
+.profile-photo-container img,
+.avatar-preview,
+img[class*="w-24"],
+img[class*="h-24"] {
+  width: 96px !important;
+  height: 96px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  max-width: 96px !important;
+  max-height: 96px !important;
+  min-width: 96px !important;
+  min-height: 96px !important;
+}
+
+/* Override any Tailwind responsive classes */
+@media (min-width: 640px) {
+  .profile-photo,
+  .profile-photo-container img,
+  .avatar-preview,
+  img[class*="w-24"],
+  img[class*="h-24"] {
+    width: 96px !important;
+    height: 96px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .profile-photo,
+  .profile-photo-container img,
+  .avatar-preview,
+  img[class*="w-24"],
+  img[class*="h-24"] {
+    width: 96px !important;
+    height: 96px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-photo,
+  .profile-photo-container img,
+  .avatar-preview,
+  img[class*="w-24"],
+  img[class*="h-24"] {
+    width: 96px !important;
+    height: 96px !important;
+  }
 }
 
 /* Edit button styling */

@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useData } from '../context/DataContext';
-import { 
-  FiHome, 
-  FiTrendingUp, 
-  FiMessageCircle, 
-  FiUser,
-  FiMenu,
-  FiX,
-  FiCompass
-} from 'react-icons/fi';
+import { FiHome, FiCompass, FiTrendingUp, FiMessageCircle, FiUser, FiMenu, FiX } from 'react-icons/fi';
 import { BsSearch, BsBell, BsPlus } from 'react-icons/bs';
+import { useData } from '../context/DataContext';
+import Logo from './Logo';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -69,9 +62,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
       <div className="hidden lg:flex lg:w-64 xl:w-72 bg-white border-r border-gray-200 flex-col fixed left-0 top-0 h-full z-40">
         {/* Logo */}
         <div className="p-6 border-b border-gray-200">
-          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Lovync
-          </Link>
+          <Logo />
         </div>
 
         {/* Navigation */}

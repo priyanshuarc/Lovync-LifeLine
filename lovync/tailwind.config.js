@@ -14,6 +14,7 @@ module.exports = {
        fontFamily: {
         jejugothic: ["Jeju Gothic", "sans-serif"],
         logo: ["GoboCapsItalic", "sans-serif"], // 👈 added font here 
+        cursive: ["Dancing Script", "Great Vibes", "Alex Brush", "cursive"], // 👈 added cursive fonts
        },
     },
   },

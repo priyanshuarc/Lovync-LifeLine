@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <style>
+      .cursive-text { font-family: 'Alex Brush', cursive; font-size: 20px; font-weight: 400; fill: #000000; }
+    </style>
+  </defs>
+  
+  <!-- Clean white background -->
+  <rect x="0" y="0" width="100" height="100" rx="20" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  
+  <!-- Premium high contrast cursive "Lovync" -->
+  <text x="15" y="55" class="cursive-text">L</text>
+  <text x="30" y="57" class="cursive-text">o</text>
+  <text x="45" y="55" class="cursive-text">v</text>
+  <text x="60" y="57" class="cursive-text">y</text>
+  <text x="75" y="55" class="cursive-text">n</text>
+  <text x="85" y="57" class="cursive-text">c</text>
+</svg>

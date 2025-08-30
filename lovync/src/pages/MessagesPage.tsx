@@ -1,11 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../styles/MessagesPage.css';
 import { 
   BsChatDots, 
   BsSearch, 
   BsSend, 
-  BsThreeDotsVertical, 
   BsHeart,
   BsHeartFill,
   BsEmojiSmile,
@@ -49,14 +47,12 @@ interface Conversation {
 }
 
 const MessagesPage: React.FC = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('messages');
   const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [chatSearchQuery, setChatSearchQuery] = useState('');
   const [showChatOptions, setShowChatOptions] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showChatInfo, setShowChatInfo] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showNicknameModal, setShowNicknameModal] = useState(false);
@@ -220,9 +216,10 @@ const MessagesPage: React.FC = () => {
     ));
   };
 
-  const handleProfileClick = (username: string) => {
-    navigate(`/profile/${username}`);
-  };
+  // Profile navigation is handled through the info button, not direct clicks
+  // const handleProfileClick = (username: string) => {
+  //   navigate(`/profile/${username}`);
+  // };
 
   const handleBackToConversations = () => {
     setSelectedConversation(null);
@@ -589,26 +586,25 @@ const MessagesPage: React.FC = () => {
         {/* Content Tabs - Hidden on mobile when chat is open */}
         <div className={`bg-white rounded-xl shadow-sm border border-gray-200 mb-3 sm:mb-4 ${isMobileChat ? 'hidden' : 'block'}`}>
           <div className="flex overflow-x-auto">
-              {[
-                { id: 'messages', label: 'Messages' },
-                { id: 'requests', label: 'Requests' },
-                { id: 'groups', label: 'Groups' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 sm:px-6 py-2 sm:py-3 text-sm font-medium transition-colors flex-shrink-0 ${
-                    activeTab === tab.id
-                      ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            {[
+              { id: 'messages', label: 'Messages' },
+              { id: 'requests', label: 'Requests' },
+              { id: 'groups', label: 'Groups' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 sm:px-6 py-2 sm:py-3 text-sm font-medium transition-colors flex-shrink-0 ${
+                  activeTab === tab.id
+                    ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
         {/* Tab Content */}
         {renderTabContent()}

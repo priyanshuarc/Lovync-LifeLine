@@ -127,7 +127,15 @@ const EditProfilePage: React.FC = () => {
                 <img
                   src={formData.avatar}
                   alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                  className="avatar-preview w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                  style={{
+                    width: '96px',
+                    height: '96px',
+                    maxWidth: '96px',
+                    maxHeight: '96px',
+                    minWidth: '96px',
+                    minHeight: '96px'
+                  }}
                 />
                 <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg">
                   <FiSave size={16} />

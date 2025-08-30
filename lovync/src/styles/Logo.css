@@ -1,0 +1,98 @@
+/* Premium High Contrast Cursive Logo Styles - Clean & Bold */
+
+/* Import unique cursive fonts */
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush:wght@400&family=Great+Vibes&family=Dancing+Script:wght@400;700&display=swap');
+
+/* Main logo container */
+.black-cursive-logo {
+  display: flex;
+  align-items: center;
+  font-family: 'Alex Brush', cursive;
+  font-weight: 400;
+  font-size: 2.8rem;
+  line-height: 1;
+  color: #000000;
+  letter-spacing: -0.02em;
+}
+
+/* Individual letter styling with premium high contrast */
+.letter-l {
+  font-weight: 400;
+  color: #000000;
+  transform: rotate(-3deg) scale(1.05);
+}
+
+.letter-o {
+  font-weight: 400;
+  color: #000000;
+  transform: rotate(2deg) scale(0.95);
+}
+
+.letter-v {
+  font-weight: 400;
+  color: #000000;
+  transform: rotate(-1deg) scale(1.1);
+}
+
+.letter-y {
+  font-weight: 400;
+  color: #000000;
+  transform: rotate(1deg) scale(1.15);
+}
+
+.letter-n {
+  font-weight: 400;
+  color: #000000;
+  transform: rotate(-2deg) scale(0.9);
+}
+
+.letter-c {
+  font-weight: 400;
+  color: #000000;
+  transform: rotate(2deg) scale(1.05);
+}
+
+/* Responsive sizing - bold and prominent */
+@media (max-width: 640px) {
+  .black-cursive-logo {
+    font-size: 2.2rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .black-cursive-logo {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .black-cursive-logo {
+    font-size: 3.2rem;
+  }
+}
+
+/* Remove all previous animations and effects */
+.premium-logo-text,
+.premium-subtitle,
+.cursive-heart-logo,
+.cursive-subtitle,
+.cool-logo-text,
+.letter-l,
+.letter-o,
+.letter-v,
+.letter-y,
+.letter-y-heart,
+.letter-y-with-heart,
+.heart-attached,
+.letter-n,
+.letter-c,
+.logo-text-main,
+.animate-pulse,
+.animate-bounce,
+.animate-shimmer,
+.font-cursive,
+.logo-symbol {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
