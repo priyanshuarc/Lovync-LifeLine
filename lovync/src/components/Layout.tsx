@@ -26,6 +26,9 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
     return false;
   };
 
+  // Check if we're on the home feed to conditionally show header
+  const isHomeFeed = location.pathname === '/homepage';
+
   const handleCreatePost = () => {
     // Handle create post functionality
     console.log('Create post clicked');
@@ -152,43 +155,45 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
         </div>
       </div>
 
-      {/* Top Navigation Bar - Mobile & Tablet */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={toggleMobileMenu}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <FiMenu size={20} />
-            </button>
-            <Link to="/" className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Lovync
-            </Link>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleSearch}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <BsSearch size={18} />
-            </button>
-            <button
-              onClick={handleNotifications}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <BsBell size={18} />
-            </button>
-            <button
-              onClick={handleCreatePost}
-              className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
-            >
-              <BsPlus size={18} />
-            </button>
+      {/* Top Navigation Bar - Mobile & Tablet - Only show on home feed */}
+      {isHomeFeed && (
+        <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={toggleMobileMenu}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FiMenu size={20} />
+              </button>
+              <Link to="/" className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Lovync
+              </Link>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleSearch}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <BsSearch size={18} />
+              </button>
+              <button
+                onClick={handleNotifications}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <BsBell size={18} />
+              </button>
+              <button
+                onClick={handleCreatePost}
+                className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
+              >
+                <BsPlus size={18} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Mobile Sidebar Menu */}
       <div className={`fixed top-0 left-0 h-full w-80 bg-white z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
@@ -298,78 +303,78 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 ${showNav ? 'lg:ml-64 xl:ml-72' : ''} ${showNav ? 'pt-16 lg:pt-0' : ''}`}>
+      <div className={`flex-1 ${showNav ? 'lg:ml-64 xl:ml-72' : ''} ${showNav && isHomeFeed ? 'pt-16 lg:pt-0' : ''}`}>
         <div className="min-h-screen">
           {children}
         </div>
       </div>
 
-             {/* Bottom Navigation - Mobile & Tablet */}
-       {showNav && (
-         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-           <div className="flex items-center justify-around py-2">
-             <Link
-               to="/homepage"
-               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-                 isActive('/homepage')
-                   ? 'text-purple-600 bg-purple-50'
-                   : 'text-gray-600 hover:text-gray-900'
-               }`}
-             >
-               <FiHome size={20} />
-               <span className="text-xs mt-1">Home</span>
-             </Link>
+      {/* Bottom Navigation - Mobile & Tablet */}
+      {showNav && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+          <div className="flex items-center justify-around py-2">
+            <Link
+              to="/homepage"
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+                isActive('/homepage')
+                  ? 'text-purple-600 bg-purple-50'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <FiHome size={20} />
+              <span className="text-xs mt-1">Home</span>
+            </Link>
 
-             <Link
-               to="/explore"
-               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-                 isActive('/explore')
-                   ? 'text-purple-600 bg-purple-50'
-                   : 'text-gray-600 hover:text-gray-900'
-               }`}
-             >
-               <FiCompass size={20} />
-               <span className="text-xs mt-1">Explore</span>
-             </Link>
+            <Link
+              to="/explore"
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+                isActive('/explore')
+                  ? 'text-purple-600 bg-purple-50'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <FiCompass size={20} />
+              <span className="text-xs mt-1">Explore</span>
+            </Link>
 
-             <Link
-               to="/search"
-               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-                 isActive('/search')
-                   ? 'text-purple-600 bg-purple-50'
-                   : 'text-gray-600 hover:text-gray-900'
-               }`}
-             >
-               <BsSearch size={20} />
-               <span className="text-xs mt-1">Search</span>
-             </Link>
+            <Link
+              to="/search"
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+                isActive('/search')
+                  ? 'text-purple-600 bg-purple-50'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <BsSearch size={20} />
+              <span className="text-xs mt-1">Search</span>
+            </Link>
 
-             <Link
-               to="/messages"
-               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-                 isActive('/messages')
-                   ? 'text-purple-600 bg-purple-50'
-                   : 'text-gray-600 hover:text-gray-900'
-               }`}
-             >
-               <FiMessageCircle size={20} />
-               <span className="text-xs mt-1">Messages</span>
-             </Link>
+            <Link
+              to="/messages"
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+                isActive('/messages')
+                  ? 'text-purple-600 bg-purple-50'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <FiMessageCircle size={20} />
+              <span className="text-xs mt-1">Messages</span>
+            </Link>
 
-                           <Link
-                to={`/profile/${currentUser.username}`}
-                className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-                  isActive('/profile')
-                    ? 'text-purple-600 bg-purple-50'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <FiUser size={20} />
-                <span className="text-xs mt-1">Profile</span>
-              </Link>
-           </div>
-         </div>
-       )}
+            <Link
+              to={`/profile/${currentUser.username}`}
+              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+                isActive('/profile')
+                  ? 'text-purple-600 bg-purple-50'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <FiUser size={20} />
+              <span className="text-xs mt-1">Profile</span>
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
