@@ -1,415 +1,688 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { 
+  User, 
+  Post, 
+  Comment, 
+  Message, 
+  Conversation, 
+  Notification,
+  PostFilters,
+  SortOptions,
+  ProfileUpdateForm,
+  PostCreateForm
+} from '../types';
+import { apiService } from '../services/api';
+import { sampleUsers, samplePosts, sampleConversations, sampleMessages } from '../data/sampleData';
 
-// User interface
-interface User {
-  id: number;
-  name: string;
-  username: string;
-  avatar: string;
-  verified: boolean;
-  online: boolean;
-  bio?: string;
-  followers: number;
-  following: number;
-  posts: number;
+// Action Types
+type Action =
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_USER'; payload: User | null }
+  | { type: 'SET_AUTHENTICATED'; payload: boolean }
+  | { type: 'SET_POSTS'; payload: Post[] }
+  | { type: 'ADD_POST'; payload: Post }
+  | { type: 'UPDATE_POST'; payload: Post }
+  | { type: 'DELETE_POST'; payload: string }
+  | { type: 'SET_CONVERSATIONS'; payload: Conversation[] }
+  | { type: 'SET_MESSAGES'; payload: Message[] }
+  | { type: 'ADD_MESSAGE'; payload: Message }
+  | { type: 'UPDATE_MESSAGE'; payload: Message }
+  | { type: 'DELETE_MESSAGE'; payload: string }
+  | { type: 'SET_POST_FILTERS'; payload: PostFilters }
+  | { type: 'SET_SORT_OPTIONS'; payload: SortOptions }
+  | { type: 'LIKE_POST'; payload: { postId: string; userId: string } }
+  | { type: 'UNLIKE_POST'; payload: { postId: string; userId: string } }
+  | { type: 'BOOKMARK_POST'; payload: { postId: string; userId: string } }
+  | { type: 'UNBOOKMARK_POST'; payload: { postId: string; userId: string } }
+  | { type: 'FOLLOW_USER'; payload: { userId: string; targetUserId: string } }
+  | { type: 'UNFOLLOW_USER'; payload: { userId: string; targetUserId: string } }
+  | { type: 'UPDATE_USER_PROFILE'; payload: User }
+  | { type: 'UPDATE_USER_IN_LIST'; payload: User }
+  | { type: 'CLEAR_DATA' };
+
+// Define the state type to allow user to be null
+type AppState = {
+  // App State
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  
+  // Posts State
+  posts: Post[];
+  currentPost: Post | null;
+  postFilters: PostFilters;
+  sortOptions: SortOptions;
+  
+  // Messages State
+  conversations: Conversation[];
+  currentConversation: Conversation | null;
+  messages: Message[];
+  
+  // Cached Data
+  users: User[];
+  savedPosts: Post[];
+  likedPosts: Post[];
+};
+
+// Initial State
+const initialState: AppState = {
+  // App State
+  user: sampleUsers[0], // Set default user to Priyanshu Pandey
+  isAuthenticated: true, // Set to true for demo purposes
+  isLoading: false,
+  error: null,
+  
+  // Posts State
+  posts: samplePosts,
+  currentPost: null,
+  postFilters: {
+    category: undefined,
+    tags: [],
+    userId: undefined,
+    type: undefined,
+    dateRange: undefined,
+  },
+  sortOptions: {
+    field: 'createdAt' as const,
+    order: 'desc' as const,
+  },
+  
+  // Messages State
+  conversations: sampleConversations,
+  currentConversation: null,
+  messages: sampleMessages,
+  
+  // Cached Data
+  users: sampleUsers,
+  savedPosts: [],
+  likedPosts: [],
+};
+
+// Reducer
+function dataReducer(state: AppState, action: Action): AppState {
+  switch (action.type) {
+    case 'SET_LOADING':
+      return { ...state, isLoading: action.payload };
+    
+    case 'SET_ERROR':
+      return { ...state, error: action.payload };
+    
+    case 'SET_USER':
+      return { ...state, user: action.payload };
+    
+    case 'SET_AUTHENTICATED':
+      return { ...state, isAuthenticated: action.payload };
+    
+    case 'SET_POSTS':
+      return { ...state, posts: action.payload };
+    
+    case 'ADD_POST':
+      return { ...state, posts: [action.payload, ...state.posts] };
+    
+    case 'UPDATE_POST':
+      return {
+        ...state,
+        posts: state.posts.map(post => 
+          post.id === action.payload.id ? action.payload : post
+        )
+      };
+    
+    case 'DELETE_POST':
+      return {
+        ...state,
+        posts: state.posts.filter(post => post.id !== action.payload)
+      };
+    
+    case 'SET_CONVERSATIONS':
+      return { ...state, conversations: action.payload };
+    
+    case 'SET_MESSAGES':
+      return { ...state, messages: action.payload };
+    
+    case 'ADD_MESSAGE':
+      return { ...state, messages: [...state.messages, action.payload] };
+    
+    case 'UPDATE_MESSAGE':
+      return {
+        ...state,
+        messages: state.messages.map(message => 
+          message.id === action.payload.id ? action.payload : message
+        )
+      };
+    
+    case 'DELETE_MESSAGE':
+      return {
+        ...state,
+        messages: state.messages.filter(message => message.id !== action.payload)
+      };
+    
+    case 'SET_POST_FILTERS':
+      return { ...state, postFilters: action.payload };
+    
+    case 'SET_SORT_OPTIONS':
+      return { ...state, sortOptions: action.payload };
+    
+    case 'LIKE_POST':
+      return {
+        ...state,
+        posts: state.posts.map(post => 
+          post.id === action.payload.postId 
+            ? { ...post, isLiked: true, likes: post.likes + 1 }
+            : post
+        )
+      };
+    
+    case 'UNLIKE_POST':
+      return {
+        ...state,
+        posts: state.posts.map(post => 
+          post.id === action.payload.postId 
+            ? { ...post, isLiked: false, likes: Math.max(0, post.likes - 1) }
+            : post
+        )
+      };
+    
+    case 'BOOKMARK_POST':
+      return {
+        ...state,
+        posts: state.posts.map(post => 
+          post.id === action.payload.postId 
+            ? { ...post, isBookmarked: true }
+            : post
+        )
+      };
+    
+    case 'UNBOOKMARK_POST':
+      return {
+        ...state,
+        posts: state.posts.map(post => 
+          post.id === action.payload.postId 
+            ? { ...post, isBookmarked: false }
+            : post
+        )
+      };
+    
+    case 'FOLLOW_USER':
+      return {
+        ...state,
+        users: state.users.map(user => 
+          user.id === action.payload.targetUserId 
+            ? { ...user, followers: user.followers + 1 }
+            : user
+        )
+      };
+    
+    case 'UNFOLLOW_USER':
+      return {
+        ...state,
+        users: state.users.map(user => 
+          user.id === action.payload.targetUserId 
+            ? { ...user, followers: Math.max(0, user.followers - 1) }
+            : user
+        )
+      };
+    
+    case 'UPDATE_USER_PROFILE':
+      return { ...state, user: action.payload };
+    
+    case 'UPDATE_USER_IN_LIST':
+      return {
+        ...state,
+        users: state.users.map(user => 
+          user.id === action.payload.id ? action.payload : user
+        )
+      };
+    
+    case 'CLEAR_DATA':
+      return initialState;
+    
+    default:
+      return state;
+  }
 }
 
-// Post interface
-interface Post {
-  id: number;
-  userId: number;
-  content: string;
-  image?: string;
-  video?: string;
-  likes: number;
-  comments: number;
-  shares: number;
-  music?: string;
-  location?: string;
-  timestamp: string;
-  type: 'image' | 'video' | 'text';
-}
-
-// Message interface
-interface Message {
-  id: number;
-  conversationId: number;
-  senderId: number;
-  text: string;
-  timestamp: string;
-  isOwn: boolean;
-}
-
-// Conversation interface
-interface Conversation {
-  id: number;
-  participants: number[];
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-}
-
-// Data context interface
+// Context Interface
 interface DataContextType {
-  currentUser: User;
+  // State
+  state: AppState;
+  dispatch: React.Dispatch<Action>;
+  currentUser: User | null;
   users: User[];
   posts: Post[];
   conversations: Conversation[];
   messages: Message[];
   savedPosts: Post[];
   likedPosts: Post[];
-  updateUser: (userId: number, updates: Partial<User>) => void;
-  addPost: (post: Omit<Post, 'id'>) => void;
-  likePost: (postId: number) => void;
-  unlikePost: (postId: number) => void;
-  savePost: (postId: number) => void;
-  unsavePost: (postId: number) => void;
-  sendMessage: (conversationId: number, text: string) => void;
+  isLoading: boolean;
+  error: string | null;
+  
+  // Auth Methods
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (userData: any) => Promise<boolean>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  
+  // Post Methods
+  fetchPosts: (filters?: PostFilters, sortOptions?: SortOptions, page?: number) => Promise<void>;
+  createPost: (postData: PostCreateForm) => Promise<boolean>;
+  updatePost: (postId: string, data: Partial<PostCreateForm>) => Promise<boolean>;
+  deletePost: (postId: string) => Promise<boolean>;
+  likePost: (postId: string) => Promise<boolean>;
+  unlikePost: (postId: string) => Promise<boolean>;
+  bookmarkPost: (postId: string) => Promise<boolean>;
+  unbookmarkPost: (postId: string) => Promise<boolean>;
+  
+  // User Methods
+  fetchUser: (userId: string) => Promise<User | null>;
+  updateProfile: (data: ProfileUpdateForm) => Promise<boolean>;
+  updateUser: (userId: string, data: Partial<User>) => Promise<boolean>;
+  followUser: (targetUserId: string) => Promise<boolean>;
+  unfollowUser: (targetUserId: string) => Promise<boolean>;
+  
+  // Message Methods
+  fetchConversations: () => Promise<void>;
+  fetchMessages: (conversationId: string) => Promise<void>;
+  sendMessage: (conversationId: string, content: string, type?: Message['type']) => Promise<boolean>;
+  
+  // Utility Methods
+  getUserById: (userId: string) => User | null;
+  getPostById: (postId: string) => Post | null;
+  clearError: () => void;
 }
 
-// Create context
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Sample data
-const sampleUsers: User[] = [
-  {
-    id: 1,
-    name: "Priyanshu Pandey",
-    username: "priyanshu_pandey",
-    avatar: "/logo.svg",
-    verified: true,
-    online: true,
-    bio: "CEO of Lovync & Founder 🚀 | Building the future of social connection. Leading innovation and meaningful relationships.",
-    followers: 15000,
-    following: 250,
-    posts: 500
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    username: "sarah_j",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-    verified: true,
-    online: true,
-    bio: "Adventure seeker & coffee lover ☕️",
-    followers: 2156,
-    following: 342,
-    posts: 89
-  },
-  {
-    id: 3,
-    name: "Mike Chen",
-    username: "mike_c",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    verified: false,
-    online: false,
-    bio: "Tech enthusiast & fitness lover 💪",
-    followers: 892,
-    following: 156,
-    posts: 45
-  },
-  {
-    id: 4,
-    name: "Emma Davis",
-    username: "emma_d",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    verified: true,
-    online: true,
-    bio: "Creative designer & travel enthusiast ✈️",
-    followers: 3456,
-    following: 234,
-    posts: 67
-  },
-  {
-    id: 5,
-    name: "Alex Rodriguez",
-    username: "alex_rod",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    verified: false,
-    online: true,
-    bio: "Music producer & DJ 🎵 | Creating vibes that move your soul",
-    followers: 1892,
-    following: 445,
-    posts: 156
-  },
-  {
-    id: 6,
-    name: "Sophie Chen",
-    username: "sophie_c",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face",
-    verified: true,
-    online: false,
-    bio: "Fashion blogger & lifestyle influencer 👗 | Sharing style tips and daily inspiration",
-    followers: 5678,
-    following: 123,
-    posts: 234
-  },
-  {
-    id: 7,
-    name: "David Kim",
-    username: "david_k",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    verified: false,
-    online: true,
-    bio: "Software engineer & open source contributor 💻 | Building the future one commit at a time",
-    followers: 2341,
-    following: 567,
-    posts: 89
-  },
-  {
-    id: 8,
-    name: "Lisa Wang",
-    username: "lisa_w",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
-    verified: true,
-    online: true,
-    bio: "Photographer & visual storyteller 📸 | Capturing moments that last forever",
-    followers: 4123,
-    following: 234,
-    posts: 178
-  }
-];
+// Provider Component
+interface DataProviderProps {
+  children: ReactNode;
+}
 
-const samplePosts: Post[] = [
-  {
-    id: 1,
-    userId: 1,
-    content: "As CEO & Founder of Lovync, I'm proud to announce our revolutionary social platform! The future of meaningful connections is here 🚀 #Lovync #CEO #Innovation #SocialMedia",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop",
-    likes: 1247,
-    comments: 89,
-    shares: 23,
-    timestamp: "2h ago",
-    type: 'image'
-  },
-  {
-    id: 2,
-    userId: 2,
-    content: "This new coffee trend is absolutely amazing! ☕️ The art and the taste are on another level. #CoffeeArt #Trending",
-    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&h=400&fit=crop",
-    music: "Coffee Shop Vibes - LoFi Beats",
-    location: "Downtown Coffee Co.",
-    likes: 2847,
-    comments: 234,
-    shares: 89,
-    timestamp: "1h ago",
-    type: 'image'
-  },
-  {
-    id: 3,
-    userId: 3,
-    content: "Just discovered this incredible hiking trail! The views are absolutely breathtaking 🏔️ #Hiking #Adventure #Trending",
-    image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&h=400&fit=crop",
-    music: "Mountain Wind - Nature Sounds",
-    location: "Mount Wilson Trail",
-    likes: 1567,
-    comments: 189,
-    shares: 67,
-    timestamp: "3h ago",
-    type: 'image'
-  },
-  {
-    id: 4,
-    userId: 4,
-    content: "This cooking technique is going viral! 🍳 So simple yet so effective. Everyone needs to try this! #Cooking #Viral #Trending",
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=600&h=400&fit=crop",
-    music: "Kitchen Sounds - Cooking",
-    location: "Home Kitchen",
-    likes: 3245,
-    comments: 456,
-    shares: 123,
-    timestamp: "5h ago",
-    type: 'image'
-  },
-  {
-    id: 5,
-    userId: 5,
-    content: "New track dropping soon! 🎵 This one's going to be fire 🔥 #Music #NewRelease #Producer",
-    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
-    music: "Alex Rodriguez - New Track",
-    location: "Studio A",
-    likes: 1892,
-    comments: 234,
-    shares: 89,
-    timestamp: "4h ago",
-    type: 'image'
-  },
-  {
-    id: 6,
-    userId: 6,
-    content: "Spring fashion trends are here! 🌸 What's your favorite look this season? #Fashion #Spring #Trending",
-    image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop",
-    music: "Spring Vibes - Fashion",
-    location: "Fashion District",
-    likes: 4567,
-    comments: 567,
-    shares: 234,
-    timestamp: "6h ago",
-    type: 'image'
-  },
-  {
-    id: 7,
-    userId: 7,
-    content: "Just pushed a major update to our open source project! 🚀 The community response has been incredible. #OpenSource #Coding #Community",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop",
-    music: "Coding Vibes - LoFi",
-    location: "Home Office",
-    likes: 2341,
-    comments: 345,
-    shares: 123,
-    timestamp: "8h ago",
-    type: 'image'
-  },
-  {
-    id: 8,
-    userId: 8,
-    content: "Sunset photography session was magical today! 🌅 Nature never fails to amaze me. #Photography #Sunset #Nature",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
-    music: "Nature Sounds - Sunset",
-    location: "Beach Point",
-    likes: 5123,
-    comments: 678,
-    shares: 345,
-    timestamp: "10h ago",
-    type: 'image'
-  }
-];
+export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
+  const [state, dispatch] = useReducer(dataReducer, initialState);
 
-const sampleConversations: Conversation[] = [
-  {
-    id: 1,
-    participants: [1, 2],
-    lastMessage: "That sounds amazing! Can't wait to see the photos! 📸",
-    lastMessageTime: "2m ago",
-    unreadCount: 2
-  },
-  {
-    id: 2,
-    participants: [1, 3],
-    lastMessage: "Thanks for the recommendation! I'll definitely check it out.",
-    lastMessageTime: "1h ago",
-    unreadCount: 0
-  },
-  {
-    id: 3,
-    participants: [1, 4],
-    lastMessage: "Let's plan something for this weekend! 🎉",
-    lastMessageTime: "3h ago",
-    unreadCount: 1
-  }
-];
+  // Initialize on mount
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      apiService.setToken(token);
+      refreshUser();
+    }
+  }, []);
 
-const sampleMessages: Message[] = [
-  {
-    id: 1,
-    conversationId: 1,
-    senderId: 2,
-    text: "Hey! How's your day going? 😊",
-    timestamp: "10:30 AM",
-    isOwn: false
-  },
-  {
-    id: 2,
-    conversationId: 1,
-    senderId: 1,
-    text: "Hi Sarah! It's going great, thanks for asking! Just finished a really productive morning. How about you?",
-    timestamp: "10:32 AM",
-    isOwn: true
-  },
-  {
-    id: 3,
-    conversationId: 1,
-    senderId: 2,
-    text: "That sounds wonderful! I'm having a good day too. Just got back from a coffee run ☕️",
-    timestamp: "10:35 AM",
-    isOwn: false
-  }
-];
-
-// Provider component
-export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<User[]>(sampleUsers);
-  const [posts, setPosts] = useState<Post[]>(samplePosts);
-  const [conversations, setConversations] = useState<Conversation[]>(sampleConversations);
-  const [messages, setMessages] = useState<Message[]>(sampleMessages);
-  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
-  const [likedPosts, setLikedPosts] = useState<Post[]>([]);
-
-  const currentUser = users[0]; // Anshu Verma
-
-  const updateUser = (userId: number, updates: Partial<User>) => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, ...updates } : user
-    ));
-  };
-
-  const addPost = (post: Omit<Post, 'id'>) => {
-    const newPost = { ...post, id: Math.max(...posts.map(p => p.id)) + 1 };
-    setPosts(prev => [newPost, ...prev]);
-  };
-
-  const likePost = (postId: number) => {
-    setPosts(prev => prev.map(post => 
-      post.id === postId ? { ...post, likes: post.likes + 1 } : post
-    ));
-    const post = posts.find(p => p.id === postId);
-    if (post && !likedPosts.find(p => p.id === postId)) {
-      setLikedPosts(prev => [...prev, post]);
+  // API Methods
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      const response = await apiService.login({ email, password });
+      
+      if (response.success && response.data) {
+        apiService.setToken(response.data.token);
+        dispatch({ type: 'SET_USER', payload: response.data.user });
+        dispatch({ type: 'SET_AUTHENTICATED', payload: true });
+        return true;
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: response.error || 'Login failed' });
+        return false;
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Login failed' });
+      return false;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
-  const unlikePost = (postId: number) => {
-    setPosts(prev => prev.map(post => 
-      post.id === postId ? { ...post, likes: Math.max(0, post.likes - 1) } : post
-    ));
-    setLikedPosts(prev => prev.filter(p => p.id !== postId));
-  };
-
-  const savePost = (postId: number) => {
-    const post = posts.find(p => p.id === postId);
-    if (post && !savedPosts.find(p => p.id === postId)) {
-      setSavedPosts(prev => [...prev, post]);
+  const signup = async (userData: any): Promise<boolean> => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      const response = await apiService.signup(userData);
+      
+      if (response.success && response.data) {
+        apiService.setToken(response.data.token);
+        dispatch({ type: 'SET_USER', payload: response.data.user });
+        dispatch({ type: 'SET_AUTHENTICATED', payload: true });
+        return true;
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: response.error || 'Signup failed' });
+        return false;
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Signup failed' });
+      return false;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
-  const unsavePost = (postId: number) => {
-    setSavedPosts(prev => prev.filter(p => p.id !== postId));
+  const logout = async (): Promise<void> => {
+    try {
+      await apiService.logout();
+    } finally {
+      apiService.clearToken();
+      dispatch({ type: 'CLEAR_DATA' });
+    }
   };
 
-  const sendMessage = (conversationId: number, text: string) => {
-    const newMessage: Message = {
-      id: Math.max(...messages.map(m => m.id)) + 1,
-      conversationId,
-      senderId: currentUser.id,
-      text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isOwn: true
-    };
-    setMessages(prev => [...prev, newMessage]);
+  const refreshUser = async (): Promise<void> => {
+    try {
+      const response = await apiService.getCurrentUser();
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'SET_USER', payload: response.data });
+        dispatch({ type: 'SET_AUTHENTICATED', payload: true });
+      } else {
+        dispatch({ type: 'SET_AUTHENTICATED', payload: false });
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_AUTHENTICATED', payload: false });
+    }
+  };
+
+  // Post Methods
+  const fetchPosts = async (filters?: PostFilters, sortOptions?: SortOptions, page = 1): Promise<void> => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      
+      const response = await apiService.getPosts(
+        filters || state.postFilters,
+        sortOptions || state.sortOptions,
+        page
+      );
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'SET_POSTS', payload: response.data.data });
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to fetch posts' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
+  const createPost = async (postData: PostCreateForm): Promise<boolean> => {
+    if (!state.user) return false;
     
-    // Update conversation
-    setConversations(prev => prev.map(conv => 
-      conv.id === conversationId 
-        ? { ...conv, lastMessage: text, lastMessageTime: 'Just now', unreadCount: 0 }
-        : conv
-    ));
+    try {
+      const response = await apiService.createPost(state.user.id, postData);
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'ADD_POST', payload: response.data });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to create post' });
+      return false;
+    }
+  };
+
+  const updatePost = async (postId: string, data: Partial<PostCreateForm>): Promise<boolean> => {
+    try {
+      const response = await apiService.updatePost(postId, data);
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'UPDATE_POST', payload: response.data });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to update post' });
+      return false;
+    }
+  };
+
+  const deletePost = async (postId: string): Promise<boolean> => {
+    try {
+      const response = await apiService.deletePost(postId);
+      
+      if (response.success) {
+        dispatch({ type: 'DELETE_POST', payload: postId });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to delete post' });
+      return false;
+    }
+  };
+
+  const likePost = async (postId: string): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.likePost(postId, state.user.id);
+      
+      if (response.success) {
+        dispatch({ type: 'LIKE_POST', payload: { postId, userId: state.user!.id } });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const unlikePost = async (postId: string): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.unlikePost(postId, state.user.id);
+      
+      if (response.success) {
+        dispatch({ type: 'UNLIKE_POST', payload: { postId, userId: state.user!.id } });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const bookmarkPost = async (postId: string): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.bookmarkPost(postId, state.user.id);
+      
+      if (response.success) {
+        dispatch({ type: 'BOOKMARK_POST', payload: { postId, userId: state.user!.id } });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const unbookmarkPost = async (postId: string): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.unbookmarkPost(postId, state.user.id);
+      
+      if (response.success) {
+        dispatch({ type: 'UNBOOKMARK_POST', payload: { postId, userId: state.user!.id } });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // User Methods
+  const fetchUser = async (userId: string): Promise<User | null> => {
+    try {
+      const response = await apiService.getUserById(userId);
+      return response.success && response.data ? response.data : null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const updateProfile = async (data: ProfileUpdateForm): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.updateProfile(state.user.id, data);
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'UPDATE_USER_PROFILE', payload: response.data });
+        dispatch({ type: 'UPDATE_USER_IN_LIST', payload: response.data });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to update profile' });
+      return false;
+    }
+  };
+
+  const updateUser = async (userId: string, data: Partial<User>): Promise<boolean> => {
+    try {
+      const response = await apiService.updateProfile(userId, data as ProfileUpdateForm);
+      
+      if (response.success && response.data) {
+        if (state.user && state.user.id === userId) {
+          dispatch({ type: 'UPDATE_USER_PROFILE', payload: response.data });
+        }
+        dispatch({ type: 'UPDATE_USER_IN_LIST', payload: response.data });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to update user' });
+      return false;
+    }
+  };
+
+  const followUser = async (targetUserId: string): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.followUser(state.user.id, targetUserId);
+      
+      if (response.success) {
+        dispatch({ type: 'FOLLOW_USER', payload: { userId: state.user.id, targetUserId } });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const unfollowUser = async (targetUserId: string): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.unfollowUser(state.user.id, targetUserId);
+      
+      if (response.success) {
+        dispatch({ type: 'UNFOLLOW_USER', payload: { userId: state.user.id, targetUserId } });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // Message Methods
+  const fetchConversations = async (): Promise<void> => {
+    try {
+      const response = await apiService.getConversations();
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'SET_CONVERSATIONS', payload: response.data });
+      }
+    } catch (error) {
+      // Handle error silently for now
+    }
+  };
+
+  const fetchMessages = async (conversationId: string): Promise<void> => {
+    try {
+      const response = await apiService.getMessages(conversationId);
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'SET_MESSAGES', payload: response.data.data });
+      }
+    } catch (error) {
+      // Handle error silently for now
+    }
+  };
+
+  const sendMessage = async (conversationId: string, content: string, type: Message['type'] = 'text'): Promise<boolean> => {
+    if (!state.user) return false;
+    
+    try {
+      const response = await apiService.sendMessage(conversationId, state.user.id, content, type);
+      
+      if (response.success && response.data) {
+        dispatch({ type: 'ADD_MESSAGE', payload: response.data });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // Utility Methods
+  const getUserById = (userId: string): User | null => {
+    return state.users.find(user => user.id === userId) || null;
+  };
+
+  const getPostById = (postId: string): Post | null => {
+    return state.posts.find(post => post.id === postId) || null;
+  };
+
+  const clearError = () => {
+    dispatch({ type: 'SET_ERROR', payload: null });
   };
 
   const value: DataContextType = {
-    currentUser,
-    users,
-    posts,
-    conversations,
-    messages,
-    savedPosts,
-    likedPosts,
-    updateUser,
-    addPost,
+    state,
+    dispatch,
+    currentUser: state.user,
+    users: state.users,
+    posts: state.posts,
+    conversations: state.conversations,
+    messages: state.messages,
+    savedPosts: state.savedPosts,
+    likedPosts: state.likedPosts,
+    isLoading: state.isLoading,
+    error: state.error,
+    login,
+    signup,
+    logout,
+    refreshUser,
+    fetchPosts,
+    createPost,
+    updatePost,
+    deletePost,
     likePost,
     unlikePost,
-    savePost,
-    unsavePost,
-    sendMessage
+    bookmarkPost,
+    unbookmarkPost,
+    fetchUser,
+    updateProfile,
+    updateUser,
+    followUser,
+    unfollowUser,
+    fetchConversations,
+    fetchMessages,
+    sendMessage,
+    getUserById,
+    getPostById,
+    clearError,
   };
 
   return (
@@ -419,8 +692,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-// Custom hook to use the data context
-export const useData = () => {
+// Hook
+export const useData = (): DataContextType => {
   const context = useContext(DataContext);
   if (context === undefined) {
     throw new Error('useData must be used within a DataProvider');

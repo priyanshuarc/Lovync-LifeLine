@@ -15,22 +15,29 @@ const EditProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, updateUser } = useData();
   const [formData, setFormData] = useState<FormData>({
-    name: currentUser.name,
-    username: currentUser.username,
-    bio: currentUser.bio || '',
-    avatar: currentUser.avatar
+    name: '',
+    username: '',
+    bio: '',
+    avatar: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
-    setFormData({
-      name: currentUser.name,
-      username: currentUser.username,
-      bio: currentUser.bio || '',
-      avatar: currentUser.avatar
-    });
+    if (currentUser) {
+      setFormData({
+        name: currentUser.name,
+        username: currentUser.username,
+        bio: currentUser.bio || '',
+        avatar: currentUser.avatar
+      });
+    }
   }, [currentUser]);
+
+  // Redirect if no user
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

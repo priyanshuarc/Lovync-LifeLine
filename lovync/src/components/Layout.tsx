@@ -136,7 +136,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
           </Link>
 
           <Link
-            to={`/profile/${currentUser.username}`}
+            to={`/profile/${currentUser?.username || 'profile'}`}
             className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
               isActive('/profile')
                 ? 'bg-purple-50 text-purple-600 border border-purple-200'
@@ -277,7 +277,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
           </Link>
 
           <Link
-            to={`/profile/${currentUser.username}`}
+            to={`/profile/${currentUser?.username || 'profile'}`}
             onClick={toggleMobileMenu}
             className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
               isActive('/profile')
@@ -361,7 +361,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
              </Link>
 
                            <Link
-                to={`/profile/${currentUser.username}`}
+                to={`/profile/${currentUser?.username || 'profile'}`}
                 className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
                   isActive('/profile')
                     ? 'text-purple-600 bg-purple-50'

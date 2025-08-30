@@ -12,8 +12,7 @@ import {
 } from 'react-icons/bs';
 import { FiEdit3 } from 'react-icons/fi';
 import { MdVerified, MdAddAPhoto } from 'react-icons/md';
-import GoldenVerifiedBadge from '../components/GoldenVerifiedBadge';
-
+import { FiArrowLeft } from 'react-icons/fi';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +21,12 @@ const ProfilePage: React.FC = () => {
   const { currentUser, users, posts, savedPosts, likedPosts } = useData();
   
   // Get the user whose profile we're viewing
-  const profileUser = users.find(user => user.username === username) || currentUser;
+  const profileUser = users.find(user => user.username === username);
+  
+  // Early return if no profile user or current user
+  if (!profileUser || !currentUser) {
+    return <div>Loading...</div>;
+  }
   
   // Check if this is the current user's profile
   const isOwnProfile = profileUser.id === currentUser.id;
@@ -34,46 +38,70 @@ const ProfilePage: React.FC = () => {
     navigate('/edit-profile');
   };
 
-  const handleAvatarChange = () => {
-    // Handle avatar change logic
-    console.log('Change avatar clicked');
+  const handleShareProfile = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${profileUser.name}'s Profile`,
+        text: `Check out ${profileUser.name}'s profile on Lovync!`,
+        url: window.location.href,
+      });
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      navigator.clipboard.writeText(window.location.href);
+      alert('Profile link copied to clipboard!');
+    }
+  };
+
+  const handleSettings = () => {
+    console.log('Open settings');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <FiArrowLeft size={20} />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">Profile</h1>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-3 py-3">
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Profile Header */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-3">
-          <div className="flex items-start gap-4">
-            {/* Profile Photo with Edit Button */}
-            <div className="relative profile-photo-container">
-              <div className="relative">
-                <img
-                  src={profileUser.avatar}
-                  alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-200 profile-photo"
-                />
-                {isOwnProfile && (
-                  <button
-                    onClick={handleAvatarChange}
-                    className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors shadow-lg avatar-change-btn"
-                  >
-                    <MdAddAPhoto size={16} />
-                  </button>
-                )}
-              </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Profile Photo */}
+            <div className="relative">
+              <img
+                src={profileUser.avatar}
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover border-2 border-gray-200 profile-photo"
+              />
+              {isOwnProfile && (
+                <button
+                  onClick={handleEditProfile}
+                  className="absolute -bottom-2 -right-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg"
+                >
+                  <MdAddAPhoto size={16} />
+                </button>
+              )}
             </div>
 
             {/* Profile Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
                 <h2 className="text-2xl font-bold text-gray-900">{profileUser.name}</h2>
-                {profileUser.verified && profileUser.id === 1 ? (
-                  <GoldenVerifiedBadge size={20} />
-                ) : profileUser.verified ? (
-                  <MdVerified className="text-purple-400" size={20} />
-                ) : null}
+                {profileUser.verified && (
+                  <MdVerified className="text-blue-500" size={20} />
+                )}
               </div>
               
               <p className="text-gray-600 mb-2">@{profileUser.username}</p>
@@ -98,131 +126,130 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Edit Profile Button - Only show for own profile */}
-              {isOwnProfile && (
-                <button
-                  onClick={handleEditProfile}
-                  className="bg-gray-900 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2 edit-profile-btn"
-                >
-                  <FiEdit3 size={16} />
-                  Edit Profile
-                </button>
-              )}
-              
-              {/* Follow Button - Only show for other users */}
-              {!isOwnProfile && (
-                <button className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
-                  <BsHeart size={16} />
-                  Follow
-                </button>
-              )}
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3">
+                {isOwnProfile ? (
+                  <>
+                    <button
+                      onClick={handleEditProfile}
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200"
+                    >
+                      Edit Profile
+                    </button>
+                    <button
+                      onClick={handleSettings}
+                      className="bg-gray-100 text-gray-700 px-6 py-2 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
+                    >
+                      Settings
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200">
+                      Follow
+                    </button>
+                    <button className="bg-gray-100 text-gray-700 px-6 py-2 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200">
+                      Message
+                    </button>
+                    <button
+                      onClick={handleShareProfile}
+                      className="bg-gray-100 text-gray-700 px-6 py-2 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
+                    >
+                      Share
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-                {/* Content Tabs */}
-        <section className="border-t border-gray-200">
-          <nav className="flex">
-            {[
-              { id: 'posts', label: 'Posts', icon: <BsGridFill />, count: userPosts.length },
-              { id: 'saved', label: 'Saved', icon: <BsBookmarkHeart />, count: isOwnProfile ? savedPosts.length : 0 },
-              { id: 'liked', label: 'Liked', icon: <BsHeart />, count: isOwnProfile ? likedPosts.length : 0 },
-              { id: 'collections', label: 'Collections', icon: <BsCollection />, count: 0 }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors border-b-2 tab-button ${
-                  activeTab === tab.id
-                    ? 'text-gray-900 border-gray-900 active'
-                    : 'text-gray-500 border-transparent hover:text-gray-700'
-                }`}
-              >
-                {tab.icon}
-                <span>{tab.label}</span>
-                <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </nav>
-        </section>
+        {/* Profile Tabs */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('posts')}
+              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'posts'
+                  ? 'text-blue-600 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Posts
+            </button>
+            <button
+              onClick={() => setActiveTab('saved')}
+              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'saved'
+                  ? 'text-blue-600 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Saved
+            </button>
+            <button
+              onClick={() => setActiveTab('liked')}
+              className={`flex-1 py-4 px-6 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'liked'
+                  ? 'text-blue-600 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Liked
+            </button>
+          </div>
 
-                {/* Content Grid */}
-        <section className="mt-3">
-                     {activeTab === 'posts' && (
-             <div className="grid grid-cols-3 gap-1">
-               {userPosts.map((post) => (
-                 <div 
-                   key={post.id} 
-                   className="relative group cursor-pointer aspect-square post-item"
-                   onClick={() => console.log('Post clicked:', post.id)}
-                 >
-                   <img 
-                     src={post.image || 'https://picsum.photos/400/400'} 
-                     alt={`Post ${post.id}`} 
-                     className="w-full h-full object-cover"
-                   />
-                   
-                   {/* Video indicator */}
-                   {post.type === 'video' && (
-                     <div className="absolute top-2 right-2 bg-black/70 text-white p-1 rounded">
-                       <BsPlayCircle size={16} />
-                     </div>
-                   )}
+          {/* Tab Content */}
+          <div className="p-6">
+            {activeTab === 'posts' && (
+              <div className="grid grid-cols-3 gap-4">
+                {userPosts.map((post) => (
+                  <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="aspect-square overflow-hidden">
+                      <img 
+                        src={post.media?.url || 'https://picsum.photos/400/400'} 
+                        alt={`Post ${post.id}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-                   {/* Hover overlay with stats */}
-                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                     <div className="text-white text-center">
-                       <div className="flex items-center gap-4">
-                         <div className="flex items-center gap-1">
-                           <BsHeart size={16} />
-                           <span className="text-sm font-medium">{post.likes.toLocaleString()}</span>
-                         </div>
-                         <div className="flex items-center gap-1">
-                           <BsChatDots size={16} />
-                           <span className="text-sm font-medium">{post.comments}</span>
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               ))}
-             </div>
-           )}
+            {activeTab === 'saved' && (
+              <div className="grid grid-cols-3 gap-4">
+                {savedPosts.map((post) => (
+                  <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="aspect-square overflow-hidden">
+                      <img 
+                        src={post.media?.url || 'https://picsum.photos/400/400'} 
+                        alt={`Post ${post.id}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-                     {activeTab === 'saved' && isOwnProfile && (
-             <div className="text-center py-12">
-               <BsBookmarkHeart size={48} className="text-gray-300 mx-auto mb-4" />
-               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                 {savedPosts.length > 0 ? 'Saved Posts' : 'No saved posts yet'}
-               </h3>
-               <p className="text-gray-500">
-                 {savedPosts.length > 0 ? 'Your saved posts collection' : 'Save posts you love to your collection'}
-               </p>
-             </div>
-           )}
-
-           {activeTab === 'liked' && isOwnProfile && (
-             <div className="text-center py-12">
-               <BsHeart size={48} className="text-gray-300 mx-auto mb-4" />
-               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                 {likedPosts.length > 0 ? 'Liked Posts' : 'No liked posts yet'}
-               </h3>
-               <p className="text-gray-500">
-                 {likedPosts.length > 0 ? 'Posts you\'ve liked' : 'Posts you like will appear here'}
-               </p>
-             </div>
-           )}
-
-          {activeTab === 'collections' && isOwnProfile && (
-            <div className="text-center py-12">
-              <BsCollection size={48} className="text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No collections yet</h3>
-              <p className="text-gray-500">Create collections to organize your favorite posts</p>
-            </div>
-          )}
-        </section>
+            {activeTab === 'liked' && (
+              <div className="grid grid-cols-3 gap-4">
+                {likedPosts.map((post) => (
+                  <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="aspect-square overflow-hidden">
+                      <img 
+                        src={post.media?.url || 'https://picsum.photos/400/400'} 
+                        alt={`Post ${post.id}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

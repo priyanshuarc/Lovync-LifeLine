@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import { BsSearch, BsHeart, BsChatDots, BsPersonPlus, BsArrowDown } from 'react-icons/bs';
+import { BsSearch, BsHeart, BsChatDots, BsPersonPlus } from 'react-icons/bs';
 import { MdVerified } from 'react-icons/md';
 import { FiTrendingUp, FiUsers } from 'react-icons/fi';
 
@@ -9,12 +9,13 @@ const SearchPage: React.FC = () => {
   const navigate = useNavigate();
   const { users, posts, currentUser } = useData();
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState(users.filter(u => u.id !== currentUser.id));
+  const [searchResults, setSearchResults] = useState(users.filter(u => u.id !== currentUser?.id));
+  const [activeTab, setActiveTab] = useState('users');
   const [filteredPosts, setFilteredPosts] = useState(posts);
-  const [showAllUsers, setShowAllUsers] = useState(false);
-  const [showAllPosts, setShowAllPosts] = useState(false);
 
   useEffect(() => {
+    if (!currentUser) return;
+    
     if (searchQuery.trim()) {
       // Search users
       const userResults = users.filter(user => 
@@ -24,53 +25,41 @@ const SearchPage: React.FC = () => {
           (user.bio && user.bio.toLowerCase().includes(searchQuery.toLowerCase()))
         )
       );
-      setSearchResults(userResults);
 
       // Search posts
       const postResults = posts.filter(post => 
         post.content.toLowerCase().includes(searchQuery.toLowerCase())
       );
+
+      setSearchResults(userResults);
       setFilteredPosts(postResults);
     } else {
       setSearchResults(users.filter(u => u.id !== currentUser.id));
       setFilteredPosts(posts);
     }
-    // Reset view states when search changes
-    setShowAllUsers(false);
-    setShowAllPosts(false);
-  }, [searchQuery, users, posts, currentUser.id]);
+  }, [searchQuery, users, posts, currentUser]);
+
+  // Early return if no current user
+  if (!currentUser) {
+    return <div>Loading...</div>;
+  }
 
   const handleUserClick = (username: string) => {
     navigate(`/profile/${username}`);
   };
 
-  const handleFollow = (userId: number) => {
-    // This would update the follow status in the data context
+  const handleFollow = (userId: string) => {
     console.log('Follow user:', userId);
   };
 
-  const handleMessage = (userId: number) => {
-    // This would navigate to messages with the selected user
-    navigate('/messages');
+  const handleMessage = (userId: string) => {
+    console.log('Message user:', userId);
   };
 
-  const renderUsers = () => {
-    const displayUsers = showAllUsers ? searchResults : searchResults.slice(0, 3);
-    const hasMoreUsers = searchResults.length > 3;
-
-    if (searchResults.length === 0) {
-      return (
-        <div className="text-center py-8">
-          <FiUsers className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-          <p className="text-gray-500">Try adjusting your search terms</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-3">
-        {displayUsers.map((user) => (
+  const renderUsersTab = () => (
+    <div className="space-y-3">
+      {searchResults.length > 0 ? (
+        searchResults.map((user) => (
           <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center space-x-4">
               {/* User Avatar */}
@@ -81,7 +70,7 @@ const SearchPage: React.FC = () => {
                   className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 cursor-pointer"
                   onClick={() => handleUserClick(user.username)}
                 />
-                {user.online && (
+                {user.isOnline && (
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                 )}
               </div>
@@ -95,7 +84,7 @@ const SearchPage: React.FC = () => {
                   >
                     {user.name}
                   </h3>
-                  {user.verified && <MdVerified className="text-purple-400 flex-shrink-0" size={16} />}
+                  {user.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={16} />}
                 </div>
                 <p className="text-gray-600 text-sm mb-1">@{user.username}</p>
                 {user.bio && (
@@ -127,41 +116,21 @@ const SearchPage: React.FC = () => {
               </div>
             </div>
           </div>
-        ))}
-
-        {/* See More Users Button */}
-        {hasMoreUsers && !showAllUsers && (
-          <div className="text-center py-4">
-            <button
-              onClick={() => setShowAllUsers(true)}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-            >
-              <span>See More Users</span>
-              <BsArrowDown size={16} />
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderPosts = () => {
-    const displayPosts = showAllPosts ? filteredPosts : filteredPosts.slice(0, 6);
-    const hasMorePosts = filteredPosts.length > 6;
-
-    if (filteredPosts.length === 0) {
-      return (
-        <div className="text-center py-8">
-          <FiTrendingUp className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No posts found</h3>
+        ))
+      ) : (
+        <div className="text-center py-12">
+          <FiUsers className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
           <p className="text-gray-500">Try adjusting your search terms</p>
         </div>
-      );
-    }
+      )}
+    </div>
+  );
 
-    return (
-      <div className="space-y-4">
-        {displayPosts.map((post) => {
+  const renderPostsTab = () => (
+    <div className="space-y-4">
+      {filteredPosts.length > 0 ? (
+        filteredPosts.map((post) => {
           const user = users.find(u => u.id === post.userId);
           if (!user) return null;
 
@@ -183,18 +152,18 @@ const SearchPage: React.FC = () => {
                     >
                       {user.name}
                     </span>
-                    {user.verified && <MdVerified className="text-purple-400" size={14} />}
+                    {user.verified && <MdVerified className="text-blue-500" size={14} />}
                   </div>
-                  <p className="text-sm text-gray-500">@{user.username} • {post.timestamp}</p>
+                                     <p className="text-sm text-gray-500">@{user.username} • {new Date(post.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
 
               {/* Post Content */}
               <div className="px-4 pb-4">
                 <p className="text-gray-800 mb-3">{post.content}</p>
-                {post.image && (
+                {post.media?.url && (
                   <img
-                    src={post.image}
+                    src={post.media.url}
                     alt="Post content"
                     className="w-full rounded-lg object-cover max-h-96"
                   />
@@ -214,61 +183,76 @@ const SearchPage: React.FC = () => {
               </div>
             </div>
           );
-        })}
-
-        {/* See More Posts Button */}
-        {hasMorePosts && !showAllPosts && (
-          <div className="text-center py-4">
-            <button
-              onClick={() => setShowAllPosts(true)}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-            >
-              <span>See More Posts</span>
-              <BsArrowDown size={16} />
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
+        })
+      ) : (
+        <div className="text-center py-12">
+          <FiTrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No posts found</h3>
+          <p className="text-gray-500">Try adjusting your search terms</p>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main Content - No Header */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-xl font-bold text-gray-900">Search</h1>
+          <p className="text-gray-600 mt-1 text-sm">Find people and discover content</p>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 py-4">
         {/* Search Bar */}
-        <div className="relative mb-8">
+        <div className="relative mb-6">
           <BsSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
             placeholder="Search for users, posts, or topics..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
           />
         </div>
 
-        {/* Combined Search Results */}
-        <div className="space-y-8">
-          {/* Users Section */}
-          <div>
-            <div className="flex items-center space-x-3 mb-4">
-              <FiUsers className="text-blue-600" size={20} />
-              <h2 className="text-xl font-semibold text-gray-900">Users</h2>
-              <span className="text-sm text-gray-500">({searchResults.length} found)</span>
-            </div>
-            {renderUsers()}
+        {/* Search Tabs */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`flex-1 py-3 px-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'users'
+                  ? 'text-blue-600 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <FiUsers size={16} />
+                <span>Users ({searchResults.length})</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('posts')}
+              className={`flex-1 py-3 px-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'posts'
+                  ? 'text-blue-600 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <FiTrendingUp size={16} />
+                <span>Posts ({filteredPosts.length})</span>
+              </div>
+            </button>
           </div>
+        </div>
 
-          {/* Posts Section */}
-          <div>
-            <div className="flex items-center space-x-3 mb-4">
-              <FiTrendingUp className="text-purple-600" size={20} />
-              <h2 className="text-xl font-semibold text-gray-900">Posts</h2>
-              <span className="text-sm text-gray-500">({filteredPosts.length} found)</span>
-            </div>
-            {renderPosts()}
-          </div>
+        {/* Search Results */}
+        <div className="min-h-96">
+          {activeTab === 'users' ? renderUsersTab() : renderPostsTab()}
         </div>
       </div>
     </div>
