@@ -15,7 +15,7 @@ import {
   BsPersonPlus
 } from 'react-icons/bs';
 import { FiMoreHorizontal } from 'react-icons/fi';
-import { MdReport, MdBlock } from 'react-icons/md';
+import { MdVerified, MdReport, MdBlock } from 'react-icons/md';
 import GoldenVerifiedBadge from '../components/GoldenVerifiedBadge';
 
 interface ProfileInfoProps {
@@ -227,7 +227,11 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ onClose, conversation }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <h2 className="text-xl font-semibold text-gray-900">{user.name}</h2>
-                              {user.verified && <GoldenVerifiedBadge size={20} />}
+                              {user.verified && user.username === 'priyanshu_pandey' ? (
+                                <GoldenVerifiedBadge size={20} />
+                              ) : user.verified ? (
+                                <MdVerified className="text-purple-400" size={20} />
+                              ) : null}
             </div>
             <p className="text-gray-600 mb-3">@{user.username}</p>
             {user.bio && (

@@ -22,7 +22,7 @@ import {
   BsStop
 } from 'react-icons/bs';
 import { FiEdit3, FiSearch } from 'react-icons/fi';
-import { MdDelete, MdReport, MdBlock, MdPersonAdd, MdDescription } from 'react-icons/md';
+import { MdDelete, MdReport, MdBlock, MdPersonAdd, MdDescription, MdVerified } from 'react-icons/md';
 import GoldenVerifiedBadge from '../components/GoldenVerifiedBadge';
 import ProfileInfo from './ProfileInfo';
 
@@ -87,6 +87,17 @@ const MessagesPage: React.FC = () => {
   const conversations: Conversation[] = [
     {
       id: 1,
+      user: "Priyanshu Pandey",
+      username: "priyanshu_pandey",
+      verified: true,
+      avatar: "/logo.svg",
+      lastMessage: "As CEO of Lovync, I'm excited about our new features!",
+      time: "1 min ago",
+      unreadCount: 0,
+      online: true
+    },
+    {
+      id: 2,
       user: "Sarah Johnson",
       username: "sarah_j",
       verified: true,
@@ -504,7 +515,11 @@ const MessagesPage: React.FC = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-gray-900 truncate text-base">{selectedConversation.user}</h3>
-                {selectedConversation.verified && <GoldenVerifiedBadge size={16} />}
+                {selectedConversation.verified && selectedConversation.username === 'priyanshu_pandey' ? (
+                  <GoldenVerifiedBadge size={16} />
+                ) : selectedConversation.verified ? (
+                  <MdVerified className="text-purple-400" size={16} />
+                ) : null}
               </div>
               <p className="text-gray-500 truncate text-sm">
                 {selectedConversation.online ? 'online' : 'last seen recently'}
@@ -951,7 +966,11 @@ const MessagesPage: React.FC = () => {
                 />
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center justify-center gap-2">
                   {selectedConversation.user}
-                  {selectedConversation.verified && <GoldenVerifiedBadge size={16} />}
+                  {selectedConversation.verified && selectedConversation.username === 'priyanshu_pandey' ? (
+                  <GoldenVerifiedBadge size={16} />
+                ) : selectedConversation.verified ? (
+                  <MdVerified className="text-purple-400" size={16} />
+                ) : null}
                 </h3>
                 <p className="text-sm text-gray-600">@{selectedConversation.username}</p>
                 <div className="flex items-center justify-center gap-3 mt-2 text-xs text-gray-500">
@@ -1124,7 +1143,11 @@ const MessagesPage: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <h3 className="font-semibold text-gray-900 truncate">{conversation.user}</h3>
-                      {conversation.verified && <GoldenVerifiedBadge size={16} />}
+                      {conversation.verified && conversation.username === 'priyanshu_pandey' ? (
+                  <GoldenVerifiedBadge size={16} />
+                ) : conversation.verified ? (
+                  <MdVerified className="text-purple-400" size={16} />
+                ) : null}
                       {conversation.nickname && (
                         <span className="text-sm text-gray-500">({conversation.nickname})</span>
                       )}
