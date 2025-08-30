@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../styles/ProfilePage.css';
 import { useData } from '../context/DataContext';
@@ -50,15 +50,7 @@ const ProfilePage: React.FC = () => {
                 <img
                   src={profileUser.avatar}
                   alt="Profile"
-                  className="profile-photo w-24 h-24 rounded-full object-cover border-2 border-gray-200"
-                  style={{
-                    width: '96px',
-                    height: '96px',
-                    maxWidth: '96px',
-                    maxHeight: '96px',
-                    minWidth: '96px',
-                    minHeight: '96px'
-                  }}
+                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-200 profile-photo"
                 />
                 {isOwnProfile && (
                   <button
