@@ -10,7 +10,7 @@ import {
   BsCheck2,
   BsArrowLeft,
   BsShare,
-  BsEmojiSmile,
+
   BsMic,
   BsThreeDots,
   BsForward,
@@ -65,7 +65,7 @@ const MessagesPage: React.FC = () => {
   const [showChatInfo, setShowChatInfo] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   const [showReplyTo, setShowReplyTo] = useState<Message | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -78,6 +78,7 @@ const MessagesPage: React.FC = () => {
   const [audioProgress, setAudioProgress] = useState<{ [key: number]: number }>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout>();
 
   // Sample conversations data
@@ -197,6 +198,14 @@ const MessagesPage: React.FC = () => {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   }, [messages]);
+
+  // Auto-resize textarea when messageText changes
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+    }
+  }, [messageText]);
 
   const handleSendMessage = () => {
     if (messageText.trim() || showReplyTo) {
@@ -474,45 +483,45 @@ const MessagesPage: React.FC = () => {
   if (selectedConversation) {
     return (
       <div className="h-screen bg-gray-50 flex flex-col fixed inset-0 z-50 overflow-hidden" style={{ height: '100dvh' }}>
-        {/* Fixed Chat Header */}
-        <div className="bg-white border-b border-gray-200 px-3 py-2 flex items-center gap-2 flex-shrink-0">
+        {/* Chat Header - Your Original Theme */}
+        <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 flex-shrink-0">
           <button
             onClick={handleBackToChats}
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <BsArrowLeft size={18} />
+            <BsArrowLeft size={20} />
           </button>
 
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <img
               src={selectedConversation.avatar}
               alt={selectedConversation.user}
-              className="w-8 h-8 rounded-full object-cover cursor-pointer"
+              className="w-10 h-10 rounded-full object-cover cursor-pointer"
               onClick={() => setShowChatInfo(!showChatInfo)}
             />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <h3 className="font-semibold text-gray-900 truncate text-sm">{selectedConversation.user}</h3>
-                {selectedConversation.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={14} />}
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-gray-900 truncate text-base">{selectedConversation.user}</h3>
+                {selectedConversation.verified && <MdVerified className="text-purple-500 flex-shrink-0" size={16} />}
               </div>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-gray-500 truncate text-sm">
                 {selectedConversation.online ? 'online' : 'last seen recently'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowChatSearch(!showChatSearch)}
               className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <FiSearch size={16} />
+              <FiSearch size={18} />
             </button>
             <button
               onClick={() => setShowChatInfo(!showChatInfo)}
-              className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-xs font-medium"
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
             >
-              More
+              <BsThreeDots size={18} />
             </button>
           </div>
         </div>
@@ -551,22 +560,22 @@ const MessagesPage: React.FC = () => {
           </div>
         )}
 
-        {/* Scrollable Chat Messages Area */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-2 space-y-2 min-h-0" style={{ 
-          height: 'calc(100vh - 160px)',
-          minHeight: 'calc(100vh - 160px)',
-          maxHeight: 'calc(100vh - 160px)',
-          paddingBottom: '100px'
+        {/* Chat Messages Area - Your Theme */}
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-2 space-y-2 min-h-0" style={{ 
+          height: 'calc(100vh - 200px)',
+          minHeight: 'calc(100vh - 200px)',
+          maxHeight: 'calc(100vh - 200px)',
+          paddingBottom: '120px'
         }}>
           {filteredMessages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-[80%] sm:max-w-xs lg:max-w-md px-3 py-2 rounded-xl ${
+              <div className={`max-w-[75%] sm:max-w-xs lg:max-w-md px-3 py-2 rounded-xl ${
                 message.isOwn
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-900'
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-white text-gray-900 border border-gray-200'
               }`}>
                 
                 {/* Reply Preview */}
@@ -591,18 +600,17 @@ const MessagesPage: React.FC = () => {
 
                 {/* Media Messages */}
                 {message.type === 'image' && (
-                  <div className="space-y-2">
+                  <div>
                     <img
                       src={message.mediaUrl}
-                      alt={message.fileName}
+                      alt="Image"
                       className="w-full rounded-lg max-h-64 object-cover"
                     />
-                    <p className="text-sm">{message.fileName}</p>
                   </div>
                 )}
 
                 {message.type === 'video' && (
-                  <div className="space-y-2">
+                  <div>
                     <div className="relative">
                       <video
                         src={message.mediaUrl}
@@ -610,39 +618,36 @@ const MessagesPage: React.FC = () => {
                         controls
                       />
                     </div>
-                    <p className="text-sm">{message.fileName}</p>
                   </div>
                 )}
 
                 {message.type === 'audio' && (
-                  <div className="space-y-2">
+                  <div>
                     <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
                       <button
                         onClick={() => handlePlayAudio(message.id)}
-                        className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                        className="p-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-colors"
                       >
                         {isPlayingAudio === message.id ? <BsPause size={16} /> : <BsPlay size={16} />}
                       </button>
                       <div className="flex-1">
                         <div className="w-full bg-gray-300 rounded-full h-2">
                           <div 
-                            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                            className="bg-purple-500 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${audioProgress[message.id] || 0}%` }}
                           ></div>
                         </div>
                       </div>
                       <span className="text-sm text-gray-600">{message.fileSize}</span>
                     </div>
-                    <p className="text-sm">{message.fileName}</p>
                   </div>
                 )}
 
                 {message.type === 'file' && (
-                  <div className="space-y-2">
+                  <div>
                     <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
-                      <MdDescription size={24} className="text-blue-500" />
+                      <MdDescription size={24} className="text-purple-500" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{message.fileName}</p>
                         <p className="text-xs text-gray-500">{message.fileSize}</p>
                       </div>
                       <button className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-200 transition-colors">
@@ -745,47 +750,42 @@ const MessagesPage: React.FC = () => {
           )}
         </div>
 
-        {/* Fixed Chat Input at Bottom - Always Visible */}
-        <div className="bg-white border-t-2 border-blue-200 p-2 pb-3 flex-shrink-0" style={{ 
+        {/* WhatsApp-style Chat Input */}
+        <div className="bg-white border-t border-gray-200 p-3 flex-shrink-0" style={{ 
           paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
-          position: 'absolute',
-          bottom: 0,
+          position: 'fixed',
+          bottom: '70px',
           left: 0,
           right: 0,
-          zIndex: 50,
+          zIndex: 9999,
           backgroundColor: 'white',
-          boxShadow: '0 -4px 20px rgba(0,0,0,0.15)'
+          boxShadow: '0 -2px 8px rgba(0,0,0,0.1)'
         }}>
-          {/* Visual indicator */}
-          <div className="text-center mb-2">
-            <div className="inline-block w-8 h-1 bg-blue-300 rounded-full"></div>
-          </div>
-          <div className="flex items-end gap-2">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-              title="Attach file"
-            >
-              <BsPaperclip size={16} />
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileAttach}
-              accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip,.rar"
-              multiple
-            />
+          <div className="flex items-end gap-3">
+            {/* Show other buttons only when not typing */}
+            {!messageText.trim() && (
+              <>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                  title="Attach file"
+                >
+                  <BsPaperclip size={18} />
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileAttach}
+                  accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+                  multiple
+                />
+                
+
+              </>
+            )}
             
-            <button
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-              title="Add emoji"
-            >
-              <BsEmojiSmile size={16} />
-            </button>
-            
-            <div className="relative flex-1 min-w-0">
+            <div className="relative flex-1 min-w-0 mx-2">
               {editingMessageId ? (
                 <div className="flex flex-col gap-2">
                   <textarea
@@ -812,54 +812,82 @@ const MessagesPage: React.FC = () => {
                 </div>
               ) : (
                 <textarea
+                  ref={textareaRef}
                   value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Limit to 500 characters
+                    if (value.length <= 500) {
+                      setMessageText(value);
+                      // Auto-resize the textarea with larger height limit
+                      const textarea = e.target;
+                      textarea.style.height = 'auto';
+                      textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+                    }
+                  }}
+                  onInput={(e) => {
+                    // Additional resize on input for better mobile support
+                    const textarea = e.target as HTMLTextAreaElement;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+                  }}
                   onKeyPress={handleKeyPress}
                   placeholder="Type a message..."
-                  className="w-full px-3 py-2 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none min-h-[44px] max-h-24 text-sm"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 resize-none min-h-[44px] max-h-[120px] text-sm"
                   rows={1}
                   style={{ 
                     minHeight: '44px',
-                    maxHeight: '96px',
+                    maxHeight: '200px',
                     fontSize: '16px', // Prevents zoom on iOS
                     backgroundColor: 'white',
-                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+                    transition: 'all 0.2s ease',
+                    overflow: 'auto',
+                    lineHeight: '1.4',
+                    borderRadius: '8px',
+                    width: '100%'
                   }}
                 />
               )}
+              
+              {/* Character counter */}
+              <div className="text-xs text-gray-500 mt-1 text-right w-full">
+                {messageText.length}/500
+              </div>
             </div>
             
-            <div className="flex gap-1 flex-shrink-0">
+            <div className="flex gap-2 flex-shrink-0 ml-2">
               {isRecording ? (
                 <button
                   onClick={handleStopRecording}
-                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                   title="Stop recording"
                 >
-                  <BsStop size={16} />
+                  <BsStop size={18} />
                 </button>
               ) : (
-                <button
-                  onClick={handleStartRecording}
-                  className="p-2 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors"
-                  title="Record voice message"
-                >
-                  <BsMic size={16} />
-                </button>
+                !messageText.trim() && (
+                  <button
+                    onClick={handleStartRecording}
+                    className="p-3 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors"
+                    title="Record voice message"
+                  >
+                    <BsMic size={18} />
+                  </button>
+                )
               )}
               
               {!isRecording && (
                 <button
                   onClick={handleSendMessage}
                   disabled={!messageText.trim()}
-                  className={`p-2 rounded-full transition-colors ${
+                  className={`p-3 rounded-full transition-colors ${
                     messageText.trim() 
-                      ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                      ? 'bg-purple-500 text-white hover:bg-purple-600' 
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
                   title="Send message"
                 >
-                  <BsSend size={16} />
+                  <BsSend size={18} />
                 </button>
               )}
             </div>
