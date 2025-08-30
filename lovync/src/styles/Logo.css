@@ -9,83 +9,80 @@
   align-items: center;
   font-family: 'Alex Brush', cursive;
   font-weight: 400;
-  font-size: 2.8rem;
+  font-size: 2rem;
   line-height: 1;
   color: #000000;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.05em;
 }
 
 /* Individual letter styling with premium high contrast */
 .letter-l {
   font-weight: 400;
   color: #000000;
-  transform: rotate(-3deg) scale(1.05);
+  transform: rotate(-3deg) scale(1.05) !important;
 }
 
 .letter-o {
   font-weight: 400;
   color: #000000;
-  transform: rotate(2deg) scale(0.95);
+  transform: rotate(2deg) scale(0.95) !important;
 }
 
 .letter-v {
   font-weight: 400;
   color: #000000;
-  transform: rotate(-1deg) scale(1.1);
+  transform: rotate(-1deg) scale(1.1) !important;
 }
 
 .letter-y {
   font-weight: 400;
   color: #000000;
-  transform: rotate(1deg) scale(1.15);
+  transform: rotate(1deg) scale(1.15) !important;
 }
 
 .letter-n {
   font-weight: 400;
   color: #000000;
-  transform: rotate(-2deg) scale(0.9);
+  transform: rotate(-2deg) scale(0.9) !important;
 }
 
 .letter-c {
   font-weight: 400;
   color: #000000;
-  transform: rotate(2deg) scale(1.05);
+  transform: rotate(2deg) scale(1.05) !important;
 }
 
-/* Responsive sizing - bold and prominent */
+/* Responsive sizing - more compact */
 @media (max-width: 640px) {
   .black-cursive-logo {
-    font-size: 2.2rem;
+    font-size: 1.6rem;
+    letter-spacing: -0.08em;
   }
 }
 
 @media (min-width: 641px) and (max-width: 1023px) {
   .black-cursive-logo {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
+    letter-spacing: -0.06em;
   }
 }
 
 @media (min-width: 1024px) {
   .black-cursive-logo {
-    font-size: 3.2rem;
+    font-size: 2.2rem;
+    letter-spacing: -0.04em;
   }
 }
 
-/* Remove all previous animations and effects */
+/* Remove all previous animations and effects - but preserve letter transforms */
 .premium-logo-text,
 .premium-subtitle,
 .cursive-heart-logo,
 .cursive-subtitle,
 .cool-logo-text,
-.letter-l,
-.letter-o,
-.letter-v,
-.letter-y,
 .letter-y-heart,
 .letter-y-with-heart,
 .heart-attached,
-.letter-n,
-.letter-c,
 .logo-text-main,
 .animate-pulse,
 .animate-bounce,
@@ -94,5 +91,4 @@
 .logo-symbol {
   animation: none !important;
   transition: none !important;
-  transform: none !important;
 }
