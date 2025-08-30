@@ -185,7 +185,17 @@ const MessagesPage: React.FC = () => {
   ]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  // Auto-scroll to bottom when new message is added
+  useEffect(() => {
+    const messagesContainer = document.querySelector('.overflow-y-auto');
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
   }, [messages]);
 
   const handleSendMessage = () => {
@@ -463,44 +473,44 @@ const MessagesPage: React.FC = () => {
   // If conversation is selected, show full-screen chat
   if (selectedConversation) {
     return (
-      <div className="h-screen bg-gray-50 flex flex-col">
-        {/* Enhanced Chat Header */}
-        <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+      <div className="h-screen bg-gray-50 flex flex-col fixed inset-0 z-50 overflow-hidden" style={{ height: '100dvh' }}>
+        {/* Fixed Chat Header */}
+        <div className="bg-white border-b border-gray-200 px-3 py-2 flex items-center gap-2 flex-shrink-0">
           <button
             onClick={handleBackToChats}
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <BsArrowLeft size={20} />
+            <BsArrowLeft size={18} />
           </button>
 
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <img
               src={selectedConversation.avatar}
               alt={selectedConversation.user}
-              className="w-10 h-10 rounded-full object-cover cursor-pointer"
+              className="w-8 h-8 rounded-full object-cover cursor-pointer"
               onClick={() => setShowChatInfo(!showChatInfo)}
             />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-gray-900 truncate">{selectedConversation.user}</h3>
-                {selectedConversation.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={16} />}
+              <div className="flex items-center gap-1">
+                <h3 className="font-semibold text-gray-900 truncate text-sm">{selectedConversation.user}</h3>
+                {selectedConversation.verified && <MdVerified className="text-blue-500 flex-shrink-0" size={14} />}
               </div>
-              <p className="text-sm text-gray-500 truncate">
+              <p className="text-xs text-gray-500 truncate">
                 {selectedConversation.online ? 'online' : 'last seen recently'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setShowChatSearch(!showChatSearch)}
               className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <FiSearch size={18} />
+              <FiSearch size={16} />
             </button>
             <button
               onClick={() => setShowChatInfo(!showChatInfo)}
-              className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-xs font-medium"
             >
               More
             </button>
@@ -541,14 +551,19 @@ const MessagesPage: React.FC = () => {
           </div>
         )}
 
-        {/* Enhanced Chat Messages */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-3 space-y-3">
+        {/* Scrollable Chat Messages Area */}
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-2 space-y-2 min-h-0" style={{ 
+          height: 'calc(100vh - 160px)',
+          minHeight: 'calc(100vh - 160px)',
+          maxHeight: 'calc(100vh - 160px)',
+          paddingBottom: '100px'
+        }}>
           {filteredMessages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
+              <div className={`max-w-[80%] sm:max-w-xs lg:max-w-md px-3 py-2 rounded-xl ${
                 message.isOwn
                   ? 'bg-blue-500 text-white'
                   : 'bg-white text-gray-900'
@@ -674,36 +689,36 @@ const MessagesPage: React.FC = () => {
 
                 {/* Message Options Menu */}
                 {showMessageOptions === message.id && (
-                  <div className={`absolute ${message.isOwn ? 'left-0' : 'right-0'} mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-32`}>
+                  <div className={`absolute ${message.isOwn ? 'left-0' : 'right-0'} mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-28`}>
                     <button
                       onClick={() => handleReplyToMessage(message)}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      className="w-full px-2 py-2 text-left text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
-                      <BsReply size={14} />
+                      <BsReply size={12} />
                       Reply
                     </button>
                     <button
                       onClick={() => handleForwardMessage(message)}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      className="w-full px-2 py-2 text-left text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
-                      <BsForward size={14} />
+                      <BsForward size={12} />
                       Forward
                     </button>
                     {message.isOwn && (
                       <button
                         onClick={() => handleEditMessage(message)}
-                        className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                        className="w-full px-2 py-2 text-left text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                       >
-                        <BsPencil size={14} />
+                        <BsPencil size={12} />
                         Edit
                       </button>
                     )}
                     {message.isOwn && (
                       <button
                         onClick={() => handleDeleteMessage(message.id)}
-                        className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        className="w-full px-2 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
                       >
-                        <BsTrash size={14} />
+                        <BsTrash size={12} />
                         Delete
                       </button>
                     )}
@@ -730,15 +745,28 @@ const MessagesPage: React.FC = () => {
           )}
         </div>
 
-        {/* Enhanced Chat Input */}
-        <div className="bg-white border-t border-gray-200 p-3">
-          <div className="flex items-center gap-2">
+        {/* Fixed Chat Input at Bottom - Always Visible */}
+        <div className="bg-white border-t-2 border-blue-200 p-2 pb-3 flex-shrink-0" style={{ 
+          paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          backgroundColor: 'white',
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.15)'
+        }}>
+          {/* Visual indicator */}
+          <div className="text-center mb-2">
+            <div className="inline-block w-8 h-1 bg-blue-300 rounded-full"></div>
+          </div>
+          <div className="flex items-end gap-2">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
               title="Attach file"
             >
-              <BsPaperclip size={18} />
+              <BsPaperclip size={16} />
             </button>
             <input
               type="file"
@@ -751,34 +779,36 @@ const MessagesPage: React.FC = () => {
             
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
               title="Add emoji"
             >
-              <BsEmojiSmile size={18} />
+              <BsEmojiSmile size={16} />
             </button>
             
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-0">
               {editingMessageId ? (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2">
                   <textarea
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none min-h-[40px] text-sm"
                     rows={1}
                     placeholder="Edit message..."
                   />
-                  <button
-                    onClick={handleSaveEdit}
-                    className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors text-sm"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors text-sm"
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveEdit}
+                      className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-xs"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-3 py-1 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-xs"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <textarea
@@ -786,45 +816,59 @@ const MessagesPage: React.FC = () => {
                   onChange={(e) => setMessageText(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type a message..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                  className="w-full px-3 py-2 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none min-h-[44px] max-h-24 text-sm"
                   rows={1}
+                  style={{ 
+                    minHeight: '44px',
+                    maxHeight: '96px',
+                    fontSize: '16px', // Prevents zoom on iOS
+                    backgroundColor: 'white',
+                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+                  }}
                 />
               )}
             </div>
             
-            {isRecording ? (
-              <button
-                onClick={handleStopRecording}
-                className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                title="Stop recording"
-              >
-                <BsStop size={18} />
-              </button>
-            ) : (
-              <button
-                onClick={handleStartRecording}
-                className="p-3 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors"
-                title="Record voice message"
-              >
-                <BsMic size={18} />
-              </button>
-            )}
-            
-            {!isRecording && messageText.trim() && (
-              <button
-                onClick={handleSendMessage}
-                className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-                title="Send message"
-              >
-                <BsSend size={18} />
-              </button>
-            )}
+            <div className="flex gap-1 flex-shrink-0">
+              {isRecording ? (
+                <button
+                  onClick={handleStopRecording}
+                  className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  title="Stop recording"
+                >
+                  <BsStop size={16} />
+                </button>
+              ) : (
+                <button
+                  onClick={handleStartRecording}
+                  className="p-2 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors"
+                  title="Record voice message"
+                >
+                  <BsMic size={16} />
+                </button>
+              )}
+              
+              {!isRecording && (
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!messageText.trim()}
+                  className={`p-2 rounded-full transition-colors ${
+                    messageText.trim() 
+                      ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                  title="Send message"
+                >
+                  <BsSend size={16} />
+                </button>
+              )}
+            </div>
           </div>
           
           {/* Recording Timer */}
           {isRecording && (
             <div className="mt-2 text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm">
+              <div className="inline-flex items-center gap-2 px-2 py-1 bg-red-100 text-red-600 rounded-full text-xs">
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 Recording... {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
               </div>
@@ -834,7 +878,7 @@ const MessagesPage: React.FC = () => {
 
         {/* Chat Info Sidebar */}
         {showChatInfo && (
-          <div className="fixed inset-y-0 right-0 w-full bg-white shadow-lg z-50">
+          <div className="fixed inset-y-0 right-0 w-full bg-white shadow-lg z-[60]">
             <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
               <button
                 onClick={() => setShowChatInfo(false)}
@@ -845,19 +889,19 @@ const MessagesPage: React.FC = () => {
               <h2 className="text-xl font-bold text-gray-900 flex-1">Chat Options</h2>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="text-center mb-6">
+            <div className="flex-1 overflow-y-auto p-3">
+              <div className="text-center mb-4">
                 <img
                   src={selectedConversation.avatar}
                   alt={selectedConversation.user}
-                  className="w-24 h-24 rounded-full object-cover mx-auto mb-3"
+                  className="w-16 h-16 rounded-full object-cover mx-auto mb-2"
                 />
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center justify-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center justify-center gap-2">
                   {selectedConversation.user}
-                  {selectedConversation.verified && <MdVerified className="text-blue-500" size={18} />}
+                  {selectedConversation.verified && <MdVerified className="text-blue-500" size={16} />}
                 </h3>
-                <p className="text-gray-600">@{selectedConversation.username}</p>
-                <div className="flex items-center justify-center gap-4 mt-3 text-sm text-gray-500">
+                <p className="text-sm text-gray-600">@{selectedConversation.username}</p>
+                <div className="flex items-center justify-center gap-3 mt-2 text-xs text-gray-500">
                   <span className="flex items-center gap-1">
                     <div className={`w-2 h-2 rounded-full ${selectedConversation.online ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                     {selectedConversation.online ? 'Online' : 'Offline'}
@@ -865,74 +909,74 @@ const MessagesPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <button
                   onClick={handleViewProfile}
-                  className="w-full bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  <MdPersonAdd size={18} />
+                  <MdPersonAdd size={16} />
                   View Profile
                 </button>
 
                 <button
                   onClick={handleSetNickname}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  <FiEdit3 size={18} />
+                  <FiEdit3 size={16} />
                   Set Nickname
                 </button>
 
                 <button
                   onClick={handlePinChat}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
                   📌 Pin Chat
                 </button>
 
                 <button
                   onClick={handleShareProfile}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  <BsShare size={18} />
+                  <BsShare size={16} />
                   Share Profile
                 </button>
 
                 <button
                   onClick={handleMuteUser}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  {selectedConversation.muted ? <BsVolumeUp size={18} /> : <BsVolumeMute size={18} />}
+                  {selectedConversation.muted ? <BsVolumeUp size={16} /> : <BsVolumeMute size={16} />}
                   {selectedConversation.muted ? 'Unmute' : 'Mute'}
                 </button>
 
                 <button
                   onClick={handleArchiveChat}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
                   📁 Archive Chat
                 </button>
 
                 <button
                   onClick={handleBlockUser}
-                  className="w-full bg-red-100 text-red-600 py-3 rounded-xl hover:bg-red-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-red-100 text-red-600 py-2 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  <MdBlock size={18} />
+                  <MdBlock size={16} />
                   Block User
                 </button>
 
                 <button
                   onClick={handleReportUser}
-                  className="w-full bg-red-100 text-red-600 py-3 rounded-xl hover:bg-red-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-red-100 text-red-600 py-2 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  <MdReport size={18} />
+                  <MdReport size={16} />
                   Report User
                 </button>
 
                 <button
                   onClick={handleDeleteChat}
-                  className="w-full bg-red-100 text-red-600 py-3 rounded-xl hover:bg-red-200 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-red-100 text-red-600 py-2 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  <MdDelete size={18} />
+                  <MdDelete size={16} />
                   Delete Chat
                 </button>
               </div>
