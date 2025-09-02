@@ -1,14 +1,14 @@
 // src/components/Login.tsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BsEye, BsEyeSlash, BsGoogle, BsApple, BsArrowLeft } from "react-icons/bs";
+import { BsEye, BsEyeSlash, BsGoogle, BsArrowLeft } from "react-icons/bs";
 import { FiMail, FiLock } from "react-icons/fi";
 import Logo from "./Logo";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "",
+    identifier: "", // Can be email, phone, or username
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +18,7 @@ const Login: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
@@ -27,10 +28,8 @@ const Login: React.FC = () => {
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
+    if (!formData.identifier.trim()) {
+      newErrors.identifier = "Username, phone number, or email is required";
     }
 
     if (!formData.password) {
@@ -97,28 +96,31 @@ const Login: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
+            {/* Identifier Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+              <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-2">
+                Username, Phone Number, or Email Address
               </label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
+                  id="identifier"
+                  name="identifier"
+                  type="text"
+                  value={formData.identifier}
                   onChange={handleInputChange}
                   className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 ${
-                    errors.email ? 'border-red-300 focus:border-red-300' : 'border-gray-300 focus:border-blue-400'
+                    errors.identifier ? 'border-red-300 focus:border-red-300' : 'border-gray-300 focus:border-blue-400'
                   }`}
-                  placeholder="Enter your email"
+                  placeholder="Enter your username, phone, or email"
                 />
               </div>
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+              {errors.identifier && (
+                <p className="mt-2 text-sm text-red-600">{errors.identifier}</p>
               )}
+              <p className="mt-1 text-xs text-gray-500">
+                You can sign in with any of these options
+              </p>
             </div>
 
             {/* Password Field */}
@@ -153,14 +155,7 @@ const Login: React.FC = () => {
             </div>
 
             {/* Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-400"
-                />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
+            <div className="flex justify-end">
               <Link
                 to="/forgot-password"
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
@@ -187,14 +182,14 @@ const Login: React.FC = () => {
           </form>
 
           {/* Divider */}
-          <div className="flex items-center my-8">
+          <div className="flex items-center my-6">
             <div className="flex-1 border-t border-gray-300"></div>
             <span className="px-4 text-sm text-gray-500 font-medium">OR</span>
             <div className="flex-1 border-t border-gray-300"></div>
           </div>
 
           {/* Social Login */}
-          <div className="space-y-3">
+          <div>
             <button
               onClick={() => handleSocialLogin('google')}
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-xl py-3 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
@@ -202,17 +197,10 @@ const Login: React.FC = () => {
               <BsGoogle size={20} className="text-red-500" />
               Continue with Google
             </button>
-            <button
-              onClick={() => handleSocialLogin('apple')}
-              className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-xl py-3 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-            >
-              <BsApple size={20} />
-              Continue with Apple
-            </button>
           </div>
 
           {/* Sign Up Link */}
-          <div className="text-center mt-8">
+          <div className="text-center mt-6">
             <p className="text-gray-600">
               Don't have an account?{" "}
               <Link 
@@ -223,16 +211,6 @@ const Login: React.FC = () => {
               </Link>
             </p>
           </div>
-        </div>
-
-        {/* Additional Info */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-500">
-            By signing in, you agree to our{" "}
-            <a href="#" className="text-blue-600 hover:underline">Terms of Service</a>{" "}
-            and{" "}
-            <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
-          </p>
         </div>
       </div>
     </div>

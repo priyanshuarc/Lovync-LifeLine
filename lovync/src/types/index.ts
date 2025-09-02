@@ -166,7 +166,7 @@ export interface SortOptions {
 
 // Form Types
 export interface LoginForm {
-  email: string;
+  identifier: string; // Can be email, phone number, or username
   password: string;
 }
 

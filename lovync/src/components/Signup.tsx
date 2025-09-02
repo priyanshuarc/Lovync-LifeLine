@@ -1,7 +1,7 @@
 // src/components/Signup.tsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BsEye, BsEyeSlash, BsGoogle, BsApple, BsArrowLeft } from "react-icons/bs";
+import { BsEye, BsEyeSlash, BsGoogle, BsArrowLeft } from "react-icons/bs";
 import { FiMail, FiLock, FiUser, FiPhone } from "react-icons/fi";
 import Logo from "./Logo";
 
@@ -400,13 +400,6 @@ const Signup: React.FC = () => {
             >
               <BsGoogle size={20} className="text-red-500" />
               Continue with Google
-            </button>
-            <button
-              onClick={() => handleSocialSignup('apple')}
-              className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-xl py-3 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-            >
-              <BsApple size={20} />
-              Continue with Apple
             </button>
           </div>
 

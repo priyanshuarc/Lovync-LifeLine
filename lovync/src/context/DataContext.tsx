@@ -259,7 +259,7 @@ interface DataContextType {
   error: string | null;
   
   // Auth Methods
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (identifier: string, password: string) => Promise<boolean>;
   signup: (userData: any) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -312,12 +312,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, []);
 
   // API Methods
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (identifier: string, password: string): Promise<boolean> => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
       
-      const response = await apiService.login({ email, password });
+      const response = await apiService.login({ identifier, password });
       
       if (response.success && response.data) {
         apiService.setToken(response.data.token);
